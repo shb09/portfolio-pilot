@@ -37,7 +37,7 @@ export default function Preview() {
     try {
       const { data } = await api.put("/portfolio", { username: slug, tagline: meta.tagline || null, published: publish });
       setMeta(data);
-      setToast(publish ? "🚀 Published — your public link is live" : "Draft saved");
+      setToast(publish ? "Published — your public link is live" : "Draft saved");
       await load();
     } catch (err) {
       setError(apiError(err, "Could not save portfolio settings"));
@@ -69,7 +69,7 @@ export default function Preview() {
           <div className="flex items-end gap-2">
             <button disabled={busy} onClick={() => save(false)} className="btn-ghost px-4 py-2 text-sm font-semibold">Save draft</button>
             <button disabled={busy} onClick={() => save(true)} className="btn-brand px-4 py-2 text-sm">
-              {meta.published ? "Update live page" : "Publish 🚀"}
+              {meta.published ? "Update live page" : "Publish"}
             </button>
           </div>
         </div>

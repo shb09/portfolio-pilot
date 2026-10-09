@@ -4,8 +4,8 @@ React 19 + Vite + Tailwind 4 + React Router + Axios + Framer Motion.
 
 ## Themes
 
-- ☀ **Warm Ivory** (default): `#F8F9F5` background, white surfaces, sage sections, `#245C43` forest actions, `#B8E986` lime highlights.
-- 🌙 **Midnight Emerald**: preserved dark option. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
+- **Porcelain** (default): `#F7F7F4` background, white surfaces, periwinkle `#E8E9FF` sections, cobalt `#5155E8` actions.
+- **Midnight Emerald**: preserved dark option. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
 
 ## Flow
 

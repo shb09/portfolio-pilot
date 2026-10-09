@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Moon, Satellite, Sun } from "lucide-react";
 import { pub } from "../api/client";
 import { useTheme } from "../theme/ThemeContext";
 import Aurora from "../components/Aurora";
@@ -29,14 +30,16 @@ export default function PublicPortfolio() {
           <span className="btn-brand flex h-8 w-8 items-center justify-center">◈</span>
           <span className="grad-text">Portfolio Pilot</span>
         </Link>
-        <button onClick={toggle} className="btn-ghost ml-auto px-3 py-1.5 text-sm" aria-label="Toggle theme">
-          {theme === "ivory" ? "🌙 Emerald" : "☀ Ivory"}
+        <button onClick={toggle} className="btn-ghost ml-auto p-2" aria-label="Toggle theme">
+          {theme === "porcelain" ? <Moon size={15} /> : <Sun size={15} />}
         </button>
       </header>
       <main className="mx-auto max-w-4xl px-4 pb-16">
         {missing ? (
           <div className="solid card p-12 text-center">
-            <div className="text-5xl">🛰</div>
+            <span className="icon-tile mx-auto" style={{ width: "2.75rem", height: "2.75rem" }}>
+              <Satellite size={20} />
+            </span>
             <h1 className="mt-3 text-2xl font-extrabold">This portfolio isn't live</h1>
             <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
               The link is wrong or the owner hasn't published yet.

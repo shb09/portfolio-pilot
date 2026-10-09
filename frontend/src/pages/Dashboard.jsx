@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight, ArrowUpRight, Eye, FolderKanban, MousePointerClick, Plus } from "lucide-react";
 import { api, apiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import ReadinessRing from "../components/ReadinessRing";
-import Stat from "../components/Stat";
 import { Stagger, StaggerItem } from "../components/Reveal";
 
-/** "What should I improve in my professional profile next?" */
+/** "What is the most valuable next step I can take?" */
 function tipLink(tip) {
   const t = tip.toLowerCase();
   if (t.includes("publish") || t.includes("launch-ready") || t.includes("share")) return ["/preview", "Open publishing"];
@@ -23,14 +23,12 @@ function tipLink(tip) {
 function Skeleton() {
   return (
     <div className="space-y-3" aria-label="Loading dashboard">
-      <div className="skeleton h-8 w-2/3" />
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="skeleton h-64" />
-        <div className="skeleton h-64 lg:col-span-2" />
+      <div className="skeleton h-7 w-1/2" />
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="skeleton h-52" />
+        <div className="skeleton h-52 lg:col-span-2" />
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => <div key={i} className="skeleton h-24" />)}
-      </div>
+      <div className="skeleton h-28" />
     </div>
   );
 }
@@ -53,7 +51,7 @@ export default function Dashboard() {
         if (!live) return;
         setData(dash.data);
         setPortfolio(pf.data);
-        setProjects((projs.data || []).slice(0, 3));
+        setProjects((projs.data || []).slice(0, 4));
       })
       .catch((err) => live && setError(apiError(err, "Could not load dashboard")));
     return () => { live = false; };
@@ -62,8 +60,8 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="solid card p-8 text-center">
-        <p className="font-bold" style={{ color: "var(--danger)" }}>{error}</p>
-        <button onClick={() => window.location.reload()} className="btn-brand mt-4 px-4 py-2 text-sm">Retry</button>
+        <p className="text-sm font-bold" style={{ color: "var(--danger)" }}>{error}</p>
+        <button onClick={() => window.location.reload()} className="btn-brand mt-4 px-4 py-2 text-[13px]">Retry</button>
       </div>
     );
   }
@@ -76,40 +74,40 @@ export default function Dashboard() {
   const done = readiness.breakdown.filter((b) => b.done).length;
   const [topTip] = readiness.recommendations;
   const [topTo, topLabel] = topTip ? tipLink(topTip) : ["/profile", "Review profile"];
+  const clicks = analytics.projectClicks + analytics.githubClicks + analytics.resumeClicks + analytics.linkedinClicks;
 
   return (
     <div>
-      {/* A. Welcome + quick actions */}
-      <div className="flex flex-wrap items-end gap-3">
+      {/* Compact welcome */}
+      <div className="flex flex-wrap items-center gap-3">
         <div>
-          <h1 className="display text-[1.7rem] sm:text-3xl">{greeting}, {first}.</h1>
-          <p className="mt-0.5 text-sm" style={{ color: "var(--muted)" }}>
-            What should you improve in your professional profile next?
+          <h1 className="display text-[1.45rem]">{greeting}, {first}.</h1>
+          <p className="mt-0.5 text-[13px]" style={{ color: "var(--muted)" }}>
+            Your most valuable next step is below.
           </p>
         </div>
         <div className="ml-auto flex gap-2">
-          <Link to="/projects" className="btn-ghost px-3.5 py-2 text-sm font-semibold">+ Project</Link>
-          <Link to="/preview" className="btn-brand px-3.5 py-2 text-sm">Preview & publish →</Link>
+          <Link to="/projects" className="btn-ghost px-3 py-1.5 text-xs font-semibold"><Plus size={14} /> Project</Link>
+          <Link to="/preview" className="btn-brand px-3 py-1.5 text-xs">Preview & publish <ArrowRight size={14} /></Link>
         </div>
       </div>
 
-      {/* B+C. Readiness + publication */}
-      <Stagger className="mt-5 grid gap-4 lg:grid-cols-5" gap={0.08}>
-        <StaggerItem className="solid card p-6 lg:col-span-3">
+      {/* Primary area: readiness + publish */}
+      <Stagger className="mt-4 grid gap-3 lg:grid-cols-5" gap={0.07}>
+        <StaggerItem className="solid card p-5 lg:col-span-3">
           <div className="flex flex-wrap items-center gap-5">
-            <ReadinessRing score={readiness.score} size={150} />
-            <div className="min-w-52 flex-1">
-              <p className="label">Portfolio readiness</p>
-              <p className="mt-1 text-sm font-semibold">{done} of 8 sections complete</p>
-              <div className="mt-3 grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <ReadinessRing score={readiness.score} />
+            <div className="min-w-48 flex-1">
+              <p className="eyebrow">Portfolio readiness · live from backend</p>
+              <div className="mt-2.5 grid grid-cols-1 gap-x-5 sm:grid-cols-2">
                 {readiness.breakdown.map((b) => (
-                  <div key={b.section} className="py-1">
+                  <div key={b.section} className="py-[3px]">
                     <div className="flex justify-between text-xs font-semibold">
                       <span>{b.done ? "✓ " : "○ "}{b.label}</span>
-                      <span style={{ color: "var(--muted)" }}>{b.earned}/{b.weight}</span>
+                      <span className="tabular-nums" style={{ color: "var(--muted)" }}>{b.earned}/{b.weight}</span>
                     </div>
-                    <div className="bar-track mt-1 h-1.5" role="progressbar" aria-valuenow={b.earned} aria-valuemin={0} aria-valuemax={b.weight} aria-label={b.label}>
-                      <div className={`bar-fill h-1.5${b.done ? " lime" : ""}`} style={{ width: `${(b.earned / b.weight) * 100}%` }} />
+                    <div className="bar-track mt-1 h-1" role="progressbar" aria-valuenow={b.earned} aria-valuemin={0} aria-valuemax={b.weight} aria-label={b.label}>
+                      <div className="bar-fill h-1" style={{ width: `${(b.earned / b.weight) * 100}%` }} />
                     </div>
                   </div>
                 ))}
@@ -118,97 +116,95 @@ export default function Dashboard() {
           </div>
         </StaggerItem>
 
-        <StaggerItem className="tint rounded-[0.9rem] p-6 lg:col-span-2">
-          <p className="label">Publication status</p>
-          <p className="mt-2 text-lg font-extrabold tracking-tight">
+        <StaggerItem className="tint rounded-xl p-5 lg:col-span-2">
+          <p className="eyebrow">Publication</p>
+          <p className="mt-1.5 text-lg font-extrabold tracking-tight">
             {portfolio?.published ? "Live and shareable" : portfolio ? "Draft — not public yet" : "Not set up yet"}
           </p>
-          <p className="mt-1 truncate text-sm font-medium" style={{ color: "var(--muted)" }}>
-            {portfolio?.username ? `/portfolio/${portfolio.username}` : "Claim a username to get your link"}
+          <p className="mt-0.5 truncate font-mono text-xs" style={{ color: "var(--muted)" }}>
+            {portfolio?.username ? `/portfolio/${portfolio.username}` : "claim a username to get your link"}
           </p>
-          <div className="mt-4 flex gap-2">
-            <Link to="/preview" className="btn-brand px-4 py-2 text-sm">
-              {portfolio?.published ? "Manage page" : "Set up →"}
+          <div className="mt-3.5 flex gap-2">
+            <Link to="/preview" className="btn-brand px-3.5 py-1.5 text-xs">
+              {portfolio?.published ? "Manage page" : "Set up"}
             </Link>
             {portfolio?.published && (
-              <a href={`/portfolio/${portfolio.username}`} target="_blank" rel="noreferrer" className="btn-ghost px-4 py-2 text-sm font-semibold">
-                Open ↗
+              <a href={`/portfolio/${portfolio.username}`} target="_blank" rel="noreferrer" className="btn-ghost px-3.5 py-1.5 text-xs font-semibold">
+                Open <ArrowUpRight size={13} />
               </a>
             )}
           </div>
         </StaggerItem>
       </Stagger>
 
-      {/* D. Next best action — lime-led panel */}
+      {/* Next: the single most valuable step */}
       {topTip && (
-        <div className="tint mt-4 flex flex-wrap items-center gap-3 rounded-[0.9rem] border-l-4 p-5"
-          style={{ borderLeftColor: "var(--lime-deep)" }}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-extrabold"
-            style={{ background: "var(--lime)", color: "#1e3a24" }} aria-hidden="true">→</span>
-          <div className="min-w-0">
-            <p className="label" style={{ color: "var(--brand)" }}>Next best action</p>
-            <p className="font-bold">{topTip}</p>
-          </div>
-          <Link to={topTo} className="btn-brand ml-auto shrink-0 px-4 py-2 text-sm">{topLabel} →</Link>
-        </div>
+        <Link to={topTo} className="tint mt-3 flex items-center gap-3 rounded-xl border-l-[3px] px-4 py-3.5"
+          style={{ borderLeftColor: "var(--brand)" }}>
+          <span className="chip-accent px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest">Next step</span>
+          <span className="text-sm font-bold">{topTip}</span>
+          <span className="ml-auto flex shrink-0 items-center gap-1 text-xs font-bold" style={{ color: "var(--brand)" }}>
+            {topLabel} <ArrowRight size={14} />
+          </span>
+        </Link>
       )}
       {readiness.recommendations.length > 1 && (
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
-          {readiness.recommendations.slice(1, 4).map((tip) => {
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+          {readiness.recommendations.slice(1, 3).map((tip) => {
             const [to] = tipLink(tip);
             return (
-              <Link key={tip} to={to} className="text-[13px] font-medium underline decoration-dotted underline-offset-4" style={{ color: "var(--muted)" }}>
-                {tip}
+              <Link key={tip} to={to} className="text-xs font-medium underline decoration-dotted underline-offset-4" style={{ color: "var(--muted)" }}>
+                Also: {tip}
               </Link>
             );
           })}
         </div>
       )}
 
-      {/* E. Statistics */}
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Readiness" value={`${readiness.score}%`} icon="◈" />
-        <Stat label="Views" value={analytics.portfolioViews} icon="👁" />
-        <Stat label="Total clicks" value={analytics.projectClicks + analytics.githubClicks + analytics.resumeClicks + analytics.linkedinClicks} icon="➤" />
-        <Stat label="Sections done" value={`${done}/8`} icon="✓" />
-      </div>
-
-      {/* F+G. Recents + engagement in one divided panel */}
-      <div className="solid card mt-4 divide-y" style={{ borderColor: "var(--line)" }}>
-        <div className="flex items-center p-5 pb-3">
-          <h2 className="font-extrabold">Recent projects</h2>
-          <Link to="/projects" className="ml-auto text-[13px] font-bold underline" style={{ color: "var(--brand)" }}>Manage all →</Link>
-        </div>
-        {projects.length === 0 ? (
-          <div className="flex flex-wrap items-center gap-3 p-5 pt-2">
-            <p className="text-sm" style={{ color: "var(--muted)" }}>No projects yet — your first one is the highest-leverage move.</p>
-            <Link to="/projects" className="btn-brand ml-auto px-3 py-1.5 text-[13px]">+ Add project</Link>
+      {/* Below: recents + compact stats */}
+      <div className="mt-4 grid gap-3 lg:grid-cols-5">
+        <div className="solid card lg:col-span-3">
+          <div className="flex items-center px-4 pt-3.5">
+            <h2 className="text-sm font-extrabold">Recent projects</h2>
+            <Link to="/projects" className="ml-auto text-xs font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>Manage all</Link>
           </div>
-        ) : (
-          <ul>
-            {projects.map((p) => (
-              <li key={p.id} className="flex items-center gap-3 px-5 py-2.5">
-                <span className="font-bold" style={{ color: "var(--lime-deep)" }} aria-hidden="true">▣</span>
-                <p className="truncate text-sm font-bold">{p.title}</p>
-                {p.featured && <span className="chip-lime shrink-0 px-2 py-px text-[10px] font-bold">★</span>}
-                <span className="truncate text-xs" style={{ color: "var(--muted)" }}>{p.techStack || ""}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="flex flex-wrap items-center gap-2 p-5">
-          <h2 className="font-extrabold">Engagement</h2>
-          {analytics.totalEvents === 0 ? (
-            <p className="text-[13px]" style={{ color: "var(--muted)" }}>No visits yet — publish and share to start counting.</p>
-          ) : (
-            <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
-              <span className="chip px-2.5 py-1">👁 {analytics.portfolioViews}</span>
-              <span className="chip px-2.5 py-1">▣ {analytics.projectClicks}</span>
-              <span className="chip px-2.5 py-1">⬢ {analytics.githubClicks}</span>
-              <span className="chip px-2.5 py-1">⬇ {analytics.resumeClicks}</span>
+          {projects.length === 0 ? (
+            <div className="flex flex-wrap items-center gap-2.5 px-4 py-3.5">
+              <p className="text-[13px]" style={{ color: "var(--muted)" }}>No projects yet — the highest-leverage first move.</p>
+              <Link to="/projects" className="btn-brand ml-auto px-3 py-1.5 text-xs"><Plus size={13} /> Add project</Link>
             </div>
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "var(--line)" }}>
+              {projects.map((p) => (
+                <li key={p.id} className="record-row flex items-center gap-2.5 px-4 py-2.5">
+                  <FolderKanban size={15} style={{ color: "var(--brand)" }} className="shrink-0" aria-hidden="true" />
+                  <p className="truncate text-[13px] font-bold">{p.title}</p>
+                  {p.featured && <span className="chip-accent shrink-0 px-1.5 py-px text-[10px] font-bold">Featured</span>}
+                  <span className="truncate text-xs" style={{ color: "var(--muted)" }}>{p.techStack || ""}</span>
+                </li>
+              ))}
+            </ul>
           )}
-          <Link to="/analytics" className="ml-auto text-[13px] font-bold underline" style={{ color: "var(--brand)" }}>Full analytics →</Link>
+        </div>
+        <div className="tint rounded-xl p-4 lg:col-span-2">
+          <h2 className="text-sm font-extrabold">Profile statistics</h2>
+          <dl className="mt-2.5 grid grid-cols-3 gap-2 text-center">
+            {[
+              [`${readiness.score}%`, "Ready", null],
+              [`${analytics.portfolioViews}`, "Views", Eye],
+              [`${clicks}`, "Clicks", MousePointerClick],
+            ].map(([v, l, Icon]) => (
+              <div key={l} className="rounded-lg border px-2 py-2.5" style={{ borderColor: "var(--line)", background: "var(--surface-solid)" }}>
+                <dt className="eyebrow flex items-center justify-center gap-1" style={{ fontSize: "0.6rem" }}>
+                  {Icon && <Icon size={11} aria-hidden="true" />}{l}
+                </dt>
+                <dd className="mt-0.5 text-xl font-extrabold tabular-nums">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <Link to="/analytics" className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>
+            Full analytics <ArrowRight size={13} />
+          </Link>
         </div>
       </div>
     </div>

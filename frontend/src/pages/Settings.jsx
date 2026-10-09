@@ -38,7 +38,7 @@ export default function Settings() {
     try {
       const { data } = await api.put("/portfolio", { ...portfolio, published: !portfolio.published });
       setPortfolio(data);
-      setToast(data.published ? "🚀 Portfolio is live" : "Portfolio unpublished");
+      setToast(data.published ? "Portfolio is live" : "Portfolio unpublished");
       setTimeout(() => setToast(""), 2200);
     } catch (err) {
       setError(apiError(err, "Could not update publishing"));
@@ -73,8 +73,8 @@ export default function Settings() {
         <h2 className="font-extrabold">Appearance</h2>
         <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Theme">
           {[
-            ["ivory", "☀ Warm Ivory", "Light default · forest accents"],
-            ["emerald", "🌙 Midnight Emerald", "Dark option · emerald glow"],
+            ["porcelain", "Porcelain light", "Default · cobalt accents"],
+            ["emerald", "Midnight emerald", "Dark option · emerald glow"],
           ].map(([value, name, desc]) => (
             <button
               key={value}
