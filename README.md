@@ -41,11 +41,10 @@ JWT (JJWT) + BCrypt · Maven · **TiDB Cloud only** (MySQL-compatible)
 
 **Frontend** — React 19 + Vite · Tailwind CSS 4 · React Router · Axios
 
-**Design** — **Porcelain + Ink + Cobalt** light theme (porcelain `#F7F7F4`, ink `#191A26`,
-cobalt `#5155E8` actions, periwinkle `#E8E9FF` surfaces) + **Charcoal** dark theme (`#111218`,
-cobalt `#8588FF` accents). Zero green brand usage — green reserved for semantic success text.
-Lucide icon system, compact 228px sidebar, editorial public portfolio, Framer Motion
-micro-interactions (reduced-motion aware).
+**Design** — **Neo-brutalist editorial**: warm paper `#F4F1E8`, ink `#171717` type + borders,
+acid lime `#D7FF3F` actions, coral `#FF6B4A` emphasis, Swiss-grid canvas, marker highlights,
+hard shadows — plus a **Carbon** dark variant. Compact top nav (no sidebar), Lucide icons,
+Framer Motion micro-interactions (reduced-motion aware).
 
 ## 🚀 Quickstart
 

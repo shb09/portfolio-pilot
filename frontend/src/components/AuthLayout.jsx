@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, Gauge, Rocket } from "lucide-react";
 
 /**
- * Two-column auth shell. Left: the form (white card on porcelain).
+ * Two-column auth shell. Left: the form (white card on paper).
  * Right: restrained product panel (periwinkle tint, no imagery).
  */
 export default function AuthLayout({ title, subtitle, children, footer }) {

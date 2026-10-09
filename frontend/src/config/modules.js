@@ -33,6 +33,7 @@ export const MODULES = {
   },
   skills: {
     endpoint: "/skills",
+    variant: "grid",
     title: "Professional Skills",
     singular: "skill",
     icon: "skills",
@@ -54,6 +55,7 @@ export const MODULES = {
   },
   education: {
     endpoint: "/education",
+    timeline: true,
     title: "Education",
     singular: "entry",
     icon: "education",
@@ -78,6 +80,7 @@ export const MODULES = {
   },
   experience: {
     endpoint: "/experience",
+    timeline: true,
     title: "Experience",
     singular: "entry",
     icon: "experience",

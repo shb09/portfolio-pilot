@@ -1,19 +1,19 @@
 # Portfolio Pilot — Frontend
 
-React 19 + Vite + Tailwind 4 + React Router + Axios + Framer Motion.
+React 19 + Vite + Tailwind 4 + React Router + Axios + Framer Motion + Lucide.
 
 ## Themes
 
-- **Porcelain** (default): `#F7F7F4` background, white surfaces, periwinkle `#E8E9FF` sections, cobalt `#5155E8` actions.
-- **Charcoal** (dark): `#111218` background, `#191A23` surfaces, cobalt `#8588FF` accents. No green in either theme — green (`--success`) is reserved for semantic success text only. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
+- **Paper** (default): `#F4F1E8` canvas, `#FFFEFA` surfaces, ink `#171717` type + borders, acid lime `#D7FF3F` actions, coral `#FF6B4A` emphasis.
+- **Carbon** (dark): `#141412` canvas, lime-on-ink actions. Toggle in top nav / account menu / settings, persisted (`pp_theme`, `data-theme` attr), no-flash bootstrap in `index.html`.
 
 ## Flow
 
-`/ → /login /register → /dashboard (welcome, readiness, publish status, linked next action,
-stats, recents) → /profile /projects /skills /education /experience /certifications
-/achievements (searchable CrudPage) → /preview (floating glass controls → publish) →
-/portfolio/:username (public editorial portfolio, fires analytics) → /analytics (charts)
-→ /settings (account, theme, public link)`
+`/ → /login /register (two-column auth) → /dashboard (mission header, readiness meter,
+lime next-step, publish, module counts, recents, missing sections) → /profile /projects
+/skills /education /experience /certifications /achievements (timeline/grid/row variants,
+search, sort, filters) → /preview (publish controls) → /portfolio/:username (editorial
+broadsheet, fires analytics) → /analytics (bars + donut) → /settings (account, theme, link)`
 
 ## Dev
 

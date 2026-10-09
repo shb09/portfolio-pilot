@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Eye, FolderKanban, MousePointerClick, Plus } from "lucide-react";
 import { api, apiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import ReadinessRing from "../components/ReadinessRing";
+import ReadinessMeter from "../components/ReadinessMeter";
 import { Stagger, StaggerItem } from "../components/Reveal";
 
 /** "What is the most valuable next step I can take?" */
@@ -24,9 +24,9 @@ function Skeleton() {
   return (
     <div className="space-y-3" aria-label="Loading dashboard">
       <div className="skeleton h-7 w-1/2" />
-      <div className="grid gap-3 lg:grid-cols-3">
-        <div className="skeleton h-52" />
-        <div className="skeleton h-52 lg:col-span-2" />
+      <div className="grid gap-3 lg:grid-cols-5">
+        <div className="skeleton h-56 lg:col-span-3" />
+        <div className="skeleton h-56 lg:col-span-2" />
       </div>
       <div className="skeleton h-28" />
     </div>
@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [counts, setCounts] = useState({ skills: 0, experience: 0, certifications: 0 });
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -46,12 +47,20 @@ export default function Dashboard() {
       api.get("/dashboard/summary"),
       api.get("/portfolio").catch(() => ({ data: null })),
       api.get("/projects").catch(() => ({ data: [] })),
+      api.get("/skills").catch(() => ({ data: [] })),
+      api.get("/experience").catch(() => ({ data: [] })),
+      api.get("/certifications").catch(() => ({ data: [] })),
     ])
-      .then(([dash, pf, projs]) => {
+      .then(([dash, pf, projs, skills, exp, certs]) => {
         if (!live) return;
         setData(dash.data);
         setPortfolio(pf.data);
         setProjects((projs.data || []).slice(0, 4));
+        setCounts({
+          skills: (skills.data || []).length,
+          experience: (exp.data || []).length,
+          certifications: (certs.data || []).length,
+        });
       })
       .catch((err) => live && setError(apiError(err, "Could not load dashboard")));
     return () => { live = false; };
@@ -69,21 +78,19 @@ export default function Dashboard() {
 
   const { readiness, analytics } = data;
   const first = user?.name?.split(" ")[0] || "there";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const done = readiness.breakdown.filter((b) => b.done).length;
   const [topTip] = readiness.recommendations;
   const [topTo, topLabel] = topTip ? tipLink(topTip) : ["/profile", "Review profile"];
   const clicks = analytics.projectClicks + analytics.githubClicks + analytics.resumeClicks + analytics.linkedinClicks;
+  const missing = readiness.breakdown.filter((b) => !b.done);
 
   return (
     <div>
       {/* Compact welcome */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 border-b-2 pb-3" style={{ borderColor: "var(--line-strong)" }}>
         <div>
-          <h1 className="display text-[1.45rem]">{greeting}, {first}.</h1>
+          <h1 className="display text-[1.5rem]">Morning, {first} — here&apos;s the mission.</h1>
           <p className="mt-0.5 text-[13px]" style={{ color: "var(--muted)" }}>
-            Your most valuable next step is below.
+            Readiness {readiness.score}% · {portfolio?.published ? "portfolio live" : "portfolio in draft"}
           </p>
         </div>
         <div className="ml-auto flex gap-2">
@@ -92,44 +99,35 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Primary area: readiness + publish */}
-      <Stagger className="mt-4 grid gap-3 lg:grid-cols-5" gap={0.07}>
-        <StaggerItem className="solid card p-5 lg:col-span-3">
-          <div className="flex flex-wrap items-center gap-5">
-            <ReadinessRing score={readiness.score} />
-            <div className="min-w-48 flex-1">
-              <p className="eyebrow">Portfolio readiness · live from backend</p>
-              <div className="mt-2.5 grid grid-cols-1 gap-x-5 sm:grid-cols-2">
-                {readiness.breakdown.map((b) => (
-                  <div key={b.section} className="py-[3px]">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span>{b.done ? "✓ " : "○ "}{b.label}</span>
-                      <span className="tabular-nums" style={{ color: "var(--muted)" }}>{b.earned}/{b.weight}</span>
-                    </div>
-                    <div className="bar-track mt-1 h-1" role="progressbar" aria-valuenow={b.earned} aria-valuemin={0} aria-valuemax={b.weight} aria-label={b.label}>
-                      <div className="bar-fill h-1" style={{ width: `${(b.earned / b.weight) * 100}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+      {/* Primary row: readiness | next step | publish */}
+      <Stagger className="mt-3 grid gap-3 lg:grid-cols-12" gap={0.07}>
+        <StaggerItem className="solid card p-5 lg:col-span-5">
+          <p className="eyebrow">Readiness · live</p>
+          <div className="mt-1"><ReadinessMeter score={readiness.score} breakdown={readiness.breakdown} /></div>
         </StaggerItem>
 
-        <StaggerItem className="tint rounded-xl p-5 lg:col-span-2">
+        <StaggerItem className="flex flex-col border-2 p-5 lg:col-span-4" style={{ borderColor: "var(--line-strong)", background: "var(--lime)", borderRadius: "6px" }}>
+          <p className="eyebrow" style={{ color: "#171717" }}>Most valuable next step</p>
+          <p className="mt-1.5 text-lg font-extrabold leading-snug tracking-tight" style={{ color: "#171717" }}>{topTip || "Everything checks out."}</p>
+          <Link to={topTo} className="mt-auto inline-flex items-center gap-1.5 pt-3 text-[13px] font-extrabold underline decoration-2 underline-offset-4" style={{ color: "#171717" }}>
+            {topLabel} <ArrowRight size={14} />
+          </Link>
+        </StaggerItem>
+
+        <StaggerItem className="solid card flex flex-col p-5 lg:col-span-3">
           <p className="eyebrow">Publication</p>
           <p className="mt-1.5 text-lg font-extrabold tracking-tight">
-            {portfolio?.published ? "Live and shareable" : portfolio ? "Draft — not public yet" : "Not set up yet"}
+            {portfolio?.published ? "LIVE" : "DRAFT"}
           </p>
           <p className="mt-0.5 truncate font-mono text-xs" style={{ color: "var(--muted)" }}>
-            {portfolio?.username ? `/portfolio/${portfolio.username}` : "claim a username to get your link"}
+            {portfolio?.username ? `/portfolio/${portfolio.username}` : "no slug claimed"}
           </p>
-          <div className="mt-3.5 flex gap-2">
-            <Link to="/preview" className="btn-brand px-3.5 py-1.5 text-xs">
-              {portfolio?.published ? "Manage page" : "Set up"}
+          <div className="mt-auto flex gap-2 pt-3">
+            <Link to="/preview" className="btn-ghost px-3 py-1.5 text-xs font-semibold">
+              {portfolio?.published ? "Manage" : "Set up"}
             </Link>
             {portfolio?.published && (
-              <a href={`/portfolio/${portfolio.username}`} target="_blank" rel="noreferrer" className="btn-ghost px-3.5 py-1.5 text-xs font-semibold">
+              <a href={`/portfolio/${portfolio.username}`} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1.5 text-xs font-semibold">
                 Open <ArrowUpRight size={13} />
               </a>
             )}
@@ -137,36 +135,28 @@ export default function Dashboard() {
         </StaggerItem>
       </Stagger>
 
-      {/* Next: the single most valuable step */}
-      {topTip && (
-        <Link to={topTo} className="tint mt-3 flex items-center gap-3 rounded-xl border-l-[3px] px-4 py-3.5"
-          style={{ borderLeftColor: "var(--brand)" }}>
-          <span className="chip-accent px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest">Next step</span>
-          <span className="text-sm font-bold">{topTip}</span>
-          <span className="ml-auto flex shrink-0 items-center gap-1 text-xs font-bold" style={{ color: "var(--brand)" }}>
-            {topLabel} <ArrowRight size={14} />
-          </span>
-        </Link>
-      )}
-      {readiness.recommendations.length > 1 && (
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-          {readiness.recommendations.slice(1, 3).map((tip) => {
-            const [to] = tipLink(tip);
-            return (
-              <Link key={tip} to={to} className="text-xs font-medium underline decoration-dotted underline-offset-4" style={{ color: "var(--muted)" }}>
-                Also: {tip}
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      {/* Secondary row: module counts */}
+      <div className="mt-3 grid grid-cols-2 gap-px border-2 sm:grid-cols-4" style={{ borderColor: "var(--line-strong)", background: "var(--line-strong)", borderRadius: "6px", overflow: "hidden" }}>
+        {[
+          [`${projects.length}`, "Projects", "/projects"],
+          [`${counts.skills}`, "Skills", "/skills"],
+          [`${counts.experience}`, "Experience", "/experience"],
+          [`${counts.certifications}`, "Certs", "/certifications"],
+        ].map(([v, l, to]) => (
+          <Link key={l} to={to} className="flex items-baseline gap-2 px-4 py-2.5" style={{ background: "var(--surface-solid)" }}>
+            <span className="display text-2xl tabular-nums">{v}</span>
+            <span className="eyebrow">{l}</span>
+            <ArrowRight size={13} className="ml-auto" style={{ color: "var(--muted)" }} aria-hidden="true" />
+          </Link>
+        ))}
+      </div>
 
-      {/* Below: recents + compact stats */}
-      <div className="mt-4 grid gap-3 lg:grid-cols-5">
-        <div className="solid card lg:col-span-3">
-          <div className="flex items-center px-4 pt-3.5">
-            <h2 className="text-sm font-extrabold">Recent projects</h2>
-            <Link to="/projects" className="ml-auto text-xs font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>Manage all</Link>
+      {/* Main content: recents + missing + activity */}
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <div className="solid card">
+          <div className="flex items-center border-b-2 px-4 py-2.5" style={{ borderColor: "var(--line-strong)" }}>
+            <h2 className="text-[13px] font-extrabold uppercase tracking-wide">Recent projects</h2>
+            <Link to="/projects" className="ml-auto text-xs font-bold underline underline-offset-2" style={{ color: "var(--ink)" }}>Manage all</Link>
           </div>
           {projects.length === 0 ? (
             <div className="flex flex-wrap items-center gap-2.5 px-4 py-3.5">
@@ -175,36 +165,49 @@ export default function Dashboard() {
             </div>
           ) : (
             <ul className="divide-y" style={{ borderColor: "var(--line)" }}>
-              {projects.map((p) => (
-                <li key={p.id} className="record-row flex items-center gap-2.5 px-4 py-2.5">
-                  <FolderKanban size={15} style={{ color: "var(--brand)" }} className="shrink-0" aria-hidden="true" />
+              {projects.map((p, i) => (
+                <li key={p.id} className="record-row flex items-center gap-3 px-4 py-2.5">
+                  <span className="font-mono text-[11px] font-bold tabular-nums" style={{ color: "var(--muted)" }}>0{i + 1}</span>
+                  <FolderKanban size={15} className="shrink-0" style={{ color: "var(--ink)" }} aria-hidden="true" />
                   <p className="truncate text-[13px] font-bold">{p.title}</p>
                   {p.featured && <span className="chip-accent shrink-0 px-1.5 py-px text-[10px] font-bold">Featured</span>}
-                  <span className="truncate text-xs" style={{ color: "var(--muted)" }}>{p.techStack || ""}</span>
+                  <span className="ml-auto truncate text-xs" style={{ color: "var(--muted)" }}>{p.techStack || ""}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <div className="tint rounded-xl p-4 lg:col-span-2">
-          <h2 className="text-sm font-extrabold">Profile statistics</h2>
-          <dl className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-            {[
-              [`${readiness.score}%`, "Ready", null],
-              [`${analytics.portfolioViews}`, "Views", Eye],
-              [`${clicks}`, "Clicks", MousePointerClick],
-            ].map(([v, l, Icon]) => (
-              <div key={l} className="rounded-lg border px-2 py-2.5" style={{ borderColor: "var(--line)", background: "var(--surface-solid)" }}>
-                <dt className="eyebrow flex items-center justify-center gap-1" style={{ fontSize: "0.6rem" }}>
-                  {Icon && <Icon size={11} aria-hidden="true" />}{l}
-                </dt>
-                <dd className="mt-0.5 text-xl font-extrabold tabular-nums">{v}</dd>
-              </div>
-            ))}
-          </dl>
-          <Link to="/analytics" className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>
-            Full analytics <ArrowRight size={13} />
-          </Link>
+        <div className="solid card">
+          <div className="border-b-2 px-4 py-2.5" style={{ borderColor: "var(--line-strong)" }}>
+            <h2 className="text-[13px] font-extrabold uppercase tracking-wide">Missing sections {missing.length > 0 && `(${missing.length})`}</h2>
+          </div>
+          {missing.length === 0 ? (
+            <p className="px-4 py-3.5 text-[13px] font-bold">Complete profile. Time to share the link.</p>
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "var(--line)" }}>
+              {missing.map((b) => {
+                const [to] = tipLink(readiness.recommendations.find((t) => t.toLowerCase().includes(b.section)) || b.label);
+                return (
+                  <li key={b.section}>
+                    <Link to={to} className="record-row flex items-center gap-2.5 px-4 py-2.5">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[1.5px]" style={{ borderColor: "var(--line-strong)" }} aria-hidden="true" />
+                      <span className="text-[13px] font-bold">{b.label}</span>
+                      <span className="ml-auto text-[11px] font-bold tabular-nums" style={{ color: "var(--muted)" }}>+{b.weight - b.earned} pts</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="flex items-center gap-2 border-t-2 px-4 py-2.5" style={{ borderColor: "var(--line-strong)" }}>
+            <Eye size={14} style={{ color: "var(--muted)" }} aria-hidden="true" />
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+              {analytics.totalEvents === 0
+                ? "No visits yet — publish and share to start counting."
+                : `${analytics.portfolioViews} views · ${clicks} clicks on your public page`}
+            </p>
+            <Link to="/analytics" className="ml-auto text-xs font-bold underline underline-offset-2" style={{ color: "var(--ink)" }}>Analytics</Link>
+          </div>
         </div>
       </div>
     </div>

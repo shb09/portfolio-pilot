@@ -1,19 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 /**
- * Porcelain light is the default; charcoal dark is the option.
- * Any stored legacy value (emerald/ivory/mist/aura/dark) migrates to
- * porcelain — this is what finally clears stuck green sessions.
+ * Paper light is the default; carbon dark is the option.
+ * Any stored legacy value (porcelain/charcoal/emerald/ivory/…) migrates
+ * to paper so no stale theme can resurrect old styling.
  */
-const THEMES = ["porcelain", "charcoal"];
-const ThemeContext = createContext({ theme: "porcelain", toggle: () => {}, setTheme: () => {} });
+const THEMES = ["paper", "carbon"];
+const ThemeContext = createContext({ theme: "paper", toggle: () => {}, setTheme: () => {} });
 
 function stored() {
   try {
-    const raw = localStorage.getItem("pp_theme") || "porcelain";
-    return THEMES.includes(raw) ? raw : "porcelain";
+    const raw = localStorage.getItem("pp_theme") || "paper";
+    return THEMES.includes(raw) ? raw : "paper";
   } catch {
-    return "porcelain";
+    return "paper";
   }
 }
 
@@ -29,7 +29,7 @@ export function ThemeProvider({ children }) {
     }
   }, [theme]);
 
-  const toggle = () => setTheme((t) => (t === "porcelain" ? "charcoal" : "porcelain"));
+  const toggle = () => setTheme((t) => (t === "paper" ? "carbon" : "paper"));
 
   return <ThemeContext.Provider value={{ theme, toggle, setTheme }}>{children}</ThemeContext.Provider>;
 }

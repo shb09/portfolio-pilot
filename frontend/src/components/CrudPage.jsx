@@ -23,6 +23,88 @@ const SORTS = [
 ];
 
 /**
+ * One record in three layouts: timeline (dated records like education),
+ * grid (dense sets like skills), or the standard row. Actions stay
+ * icon-only and appear on hover (always visible on touch).
+ */
+function RecordRow({ config, ModuleIcon, item, onEdit, onDelete }) {
+  const title = config.titleOf(item);
+  const actions = (
+    <span className="row-actions flex shrink-0 gap-0.5">
+      <button onClick={() => onEdit(item)} className="icon-btn" aria-label={`Edit ${title}`} title="Edit">
+        <Pencil size={15} />
+      </button>
+      <button onClick={() => onDelete(item)} className="icon-btn danger" aria-label={`Delete ${title}`} title="Delete">
+        <Trash2 size={15} />
+      </button>
+    </span>
+  );
+  const links = (config.linksOf?.(item) || []).map((l) => (
+    <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="font-bold underline underline-offset-2" style={{ color: "var(--ink)" }}>{l.label}</a>
+  ));
+
+  if (config.timeline) {
+    return (
+      <li className="record-row grid gap-x-3 gap-y-1 py-3.5 sm:grid-cols-[132px_1fr_auto]">
+        <span className="text-[11px] font-extrabold uppercase tracking-wide tabular-nums sm:pt-1" style={{ color: "var(--muted)" }}>
+          {config.metaOf?.(item) || ""}
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold tracking-tight">{title}</p>
+          {config.subOf(item) && <p className="text-[13px] font-semibold">{config.subOf(item)}</p>}
+          {config.descOf(item) && <p className="mt-0.5 line-clamp-2 text-[13px]" style={{ color: "var(--muted)" }}>{config.descOf(item)}</p>}
+          {links.length > 0 && <p className="mt-1 flex gap-3 text-xs">{links}</p>}
+        </div>
+        {actions}
+      </li>
+    );
+  }
+
+  if (config.variant === "grid") {
+    return (
+      <li className="solid-flat record-row rounded-[4px] p-3">
+        <div className="flex items-center gap-2">
+          <span className="icon-tile" style={{ width: "1.9rem", height: "1.9rem" }}><ModuleIcon size={15} /></span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-extrabold">{title}</p>
+            {config.subOf(item) && <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--muted)" }}>{config.subOf(item)}</p>}
+          </div>
+          {actions}
+        </div>
+      </li>
+    );
+  }
+
+  return (
+    <li className="record-row flex items-start gap-3 py-3.5">
+      <span className="icon-tile mt-0.5"><ModuleIcon size={17} /></span>
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold">
+          <span className="truncate">{title}</span>
+          {item.featured && <span className="chip-accent px-2 py-px text-[10px] font-bold">Featured</span>}
+        </p>
+        {config.subOf(item) && <p className="truncate text-[13px]" style={{ color: "var(--muted)" }}>{config.subOf(item)}</p>}
+        {config.descOf(item) && <p className="mt-0.5 line-clamp-2 text-[13px] leading-relaxed">{config.descOf(item)}</p>}
+        {(config.tagsOf?.(item)?.length > 0 || links.length > 0) && (
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            {(config.tagsOf?.(item) || []).slice(0, 5).map((t) => (
+              <span key={t} className="chip px-2 py-px font-medium">{t}</span>
+            ))}
+            {links}
+          </p>
+        )}
+      </div>
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        {config.metaOf?.(item) && !config.timeline && (
+          <span className="whitespace-nowrap text-[11px] font-semibold tabular-nums" style={{ color: "var(--muted)" }}>{config.metaOf(item)}</span>
+        )}
+        {actions}
+      </div>
+    </li>
+  );
+}
+
+/**
  * Exemplar module page: compact context header, inline toolbar
  * (search + sort + filters + count, no decorative container),
  * divided record rows with hover actions, and a compact empty state.
@@ -274,43 +356,20 @@ export default function CrudPage({ config }) {
           )}
         </div>
       ) : (
-        /* 5. Divided record rows */
-        <ul className="mt-1 divide-y" style={{ borderColor: "var(--line)" }}>
+        /* 5. Records — timeline, grid, or divided rows per module */
+        <ul
+          className={config.variant === "grid" ? "mt-2 grid gap-2 sm:grid-cols-2" : "mt-1 divide-y"}
+          style={{ borderColor: "var(--line)" }}
+        >
           {visible.map((item) => (
-            <li key={item.id} className="record-row flex items-start gap-3 py-3.5">
-              <span className="icon-tile mt-0.5"><ModuleIcon size={17} /></span>
-              <div className="min-w-0 flex-1">
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold">
-                  <span className="truncate">{config.titleOf(item)}</span>
-                  {item.featured && <span className="chip-accent px-2 py-px text-[10px] font-bold">Featured</span>}
-                </p>
-                {config.subOf(item) && <p className="truncate text-[13px]" style={{ color: "var(--muted)" }}>{config.subOf(item)}</p>}
-                {config.descOf(item) && <p className="mt-0.5 line-clamp-2 text-[13px] leading-relaxed">{config.descOf(item)}</p>}
-                {(config.tagsOf?.(item)?.length > 0 || config.linksOf?.(item)?.length > 0) && (
-                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                    {(config.tagsOf?.(item) || []).slice(0, 5).map((t) => (
-                      <span key={t} className="chip px-2 py-px font-medium">{t}</span>
-                    ))}
-                    {(config.linksOf?.(item) || []).map((l) => (
-                      <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>{l.label}</a>
-                    ))}
-                  </p>
-                )}
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                {config.metaOf?.(item) && (
-                  <span className="whitespace-nowrap text-[11px] font-semibold tabular-nums" style={{ color: "var(--muted)" }}>{config.metaOf(item)}</span>
-                )}
-                <span className="row-actions flex gap-0.5">
-                  <button onClick={() => openEdit(item)} className="icon-btn" aria-label={`Edit ${config.titleOf(item)}`} title="Edit">
-                    <Pencil size={15} />
-                  </button>
-                  <button onClick={() => setConfirming(item)} className="icon-btn danger" aria-label={`Delete ${config.titleOf(item)}`} title="Delete">
-                    <Trash2 size={15} />
-                  </button>
-                </span>
-              </div>
-            </li>
+            <RecordRow
+              key={item.id}
+              config={config}
+              ModuleIcon={ModuleIcon}
+              item={item}
+              onEdit={openEdit}
+              onDelete={setConfirming}
+            />
           ))}
         </ul>
       )}

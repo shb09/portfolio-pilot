@@ -31,7 +31,7 @@ export default function PublicPortfolio() {
           <span className="grad-text">Portfolio Pilot</span>
         </Link>
         <button onClick={toggle} className="btn-ghost ml-auto p-2" aria-label="Toggle theme">
-          {theme === "porcelain" ? <Moon size={15} /> : <Sun size={15} />}
+          {theme === "paper" ? <Moon size={15} /> : <Sun size={15} />}
         </button>
       </header>
       <main className="mx-auto max-w-4xl px-4 pb-16">
