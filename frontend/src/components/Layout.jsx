@@ -21,6 +21,13 @@ const GROWTH = [
   ["Settings", "/settings", "⚙"],
 ];
 
+function BrandMark({ size = "h-9 w-9 text-lg" }) {
+  return (
+    <span className={`flex ${size} items-center justify-center rounded-lg font-extrabold`}
+      style={{ background: "var(--brand)", color: "var(--brand-ink)" }} aria-hidden="true">◈</span>
+  );
+}
+
 function NavGroup({ label, items, onGo }) {
   return (
     <div>
@@ -58,28 +65,28 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen lg:flex">
-      {/* Desktop sidebar — solid surface, not glass */}
+      {/* Desktop sidebar */}
       <aside
-        className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r p-4 lg:flex"
+        className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r px-3 py-4 lg:flex"
         style={{ background: "var(--sidebar)", borderColor: "var(--line)" }}
       >
-        <Link to="/dashboard" className="flex items-center gap-2 px-2 py-2">
-          <span className="btn-brand flex h-9 w-9 items-center justify-center text-lg" aria-hidden="true">◈</span>
+        <Link to="/dashboard" className="flex items-center gap-2.5 px-2 py-1.5">
+          <BrandMark />
           <span>
-            <span className="block font-extrabold leading-tight tracking-tight">Portfolio Pilot</span>
+            <span className="block text-[15px] font-extrabold leading-tight tracking-tight">Portfolio Pilot</span>
             <span className="block text-[11px] font-medium" style={{ color: "var(--muted)" }}>career-profile OS</span>
           </span>
         </Link>
-        <nav className="mt-2 flex-1 overflow-y-auto" aria-label="Workspace">
+        <nav className="mt-3 flex-1 overflow-y-auto" aria-label="Workspace">
           <NavGroup label="Workspace" items={WORKSPACE} />
           <NavGroup label="Growth" items={GROWTH} />
         </nav>
-        <div className="rounded-xl border p-3" style={{ borderColor: "var(--line)", background: "var(--chip)" }}>
+        <div className="tint rounded-xl p-3">
           <p className="truncate text-sm font-bold">{user?.name}</p>
           <p className="truncate text-xs" style={{ color: "var(--muted)" }}>{user?.email}</p>
           <div className="mt-2 flex gap-1.5">
             <button onClick={toggle} className="btn-ghost flex-1 px-2 py-1.5 text-xs font-semibold" title="Toggle theme">
-              {theme === "emerald" ? "☀ Mist" : "🌙 Emerald"}
+              {theme === "ivory" ? "🌙 Emerald" : "☀ Ivory"}
             </button>
             <button onClick={quit} className="btn-ghost flex-1 px-2 py-1.5 text-xs font-semibold">
               Logout
@@ -89,7 +96,7 @@ export default function Layout({ children }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        {/* Compact mobile header + floating glass bar */}
+        {/* Mobile floating glass bar */}
         <header className="sticky top-0 z-20 lg:hidden" style={{ background: "var(--nav)", backdropFilter: "blur(14px)", borderBottom: "1px solid var(--line)" }}>
           <div className="flex items-center gap-2 px-4 py-3">
             <button
@@ -100,12 +107,12 @@ export default function Layout({ children }) {
             >
               ☰
             </button>
-            <Link to="/dashboard" className="flex items-center gap-2 font-extrabold">
-              <span className="btn-brand flex h-7 w-7 items-center justify-center text-sm" aria-hidden="true">◈</span>
+            <Link to="/dashboard" className="flex items-center gap-2 font-extrabold tracking-tight">
+              <BrandMark size="h-7 w-7 text-sm" />
               Portfolio Pilot
             </Link>
             <button onClick={toggle} className="btn-ghost ml-auto px-2.5 py-1.5 text-xs" aria-label="Toggle theme">
-              {theme === "emerald" ? "☀" : "🌙"}
+              {theme === "ivory" ? "🌙" : "☀"}
             </button>
           </div>
           <AnimatePresence>
@@ -136,7 +143,7 @@ export default function Layout({ children }) {
           </p>
           <div className="ml-auto flex items-center gap-2">
             <button onClick={toggle} className="btn-ghost px-3 py-1.5 text-xs font-semibold" title="Toggle theme">
-              {theme === "emerald" ? "☀ Mist theme" : "🌙 Emerald theme"}
+              {theme === "ivory" ? "🌙 Emerald theme" : "☀ Ivory theme"}
             </button>
           </div>
         </div>

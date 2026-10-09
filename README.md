@@ -41,10 +41,10 @@ JWT (JJWT) + BCrypt · Maven · **TiDB Cloud only** (MySQL-compatible)
 
 **Frontend** — React 19 + Vite · Tailwind CSS 4 · React Router · Axios
 
-**Design** — 🌙 **Midnight Emerald** (deep-green foundation, emerald + restrained cyan accents,
-selective glass) + ☀ **Mist** light companion, one-tap toggle, persisted. Sidebar workspace,
-readiness ring, timelines, skill-level dots, editorial public portfolio, Framer Motion
-micro-interactions (reduced-motion aware).
+**Design** — ☀ **Warm Ivory** light theme (ivory `#F8F9F5`, forest `#245C43` actions,
+lime `#B8E986` highlights) + optional 🌙 Midnight Emerald dark mode, one-tap toggle,
+persisted. Sidebar workspace, readiness ring, timelines, skill dots, featured projects,
+editorial public portfolio, Framer Motion micro-interactions (reduced-motion aware).
 
 ## 🚀 Quickstart
 

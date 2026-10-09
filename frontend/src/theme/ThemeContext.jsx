@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const THEMES = ["emerald", "mist"];
-const ThemeContext = createContext({ theme: "emerald", toggle: () => {}, setTheme: () => {} });
+/** Light ivory is the default; midnight emerald preserved as an option. */
+const THEMES = ["ivory", "emerald"];
+const ThemeContext = createContext({ theme: "ivory", toggle: () => {}, setTheme: () => {} });
 
 function stored() {
-  const raw = localStorage.getItem("pp_theme") || "emerald";
-  return THEMES.includes(raw) ? raw : "emerald"; // migrate old aura/dark values
+  const raw = localStorage.getItem("pp_theme") || "ivory";
+  return THEMES.includes(raw) ? raw : "ivory"; // migrate old aura/dark/mist values
 }
 
 export function ThemeProvider({ children }) {
@@ -16,7 +17,7 @@ export function ThemeProvider({ children }) {
     localStorage.setItem("pp_theme", theme);
   }, [theme]);
 
-  const toggle = () => setTheme((t) => (t === "emerald" ? "mist" : "emerald"));
+  const toggle = () => setTheme((t) => (t === "ivory" ? "emerald" : "ivory"));
 
   return <ThemeContext.Provider value={{ theme, toggle, setTheme }}>{children}</ThemeContext.Provider>;
 }

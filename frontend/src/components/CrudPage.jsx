@@ -76,14 +76,28 @@ export default function CrudPage({ config }) {
         const want = activeFilters[f.key];
         if (want && f.of(item) !== want) return false;
       }
+      if (config.dynamicFilter) {
+        const want = activeFilters[config.dynamicFilter.key];
+        if (want && !config.dynamicFilter.of(item).includes(want)) return false;
+      }
       if (!q) return true;
       const hay = [
         config.titleOf(item), config.subOf(item), config.descOf(item), config.metaOf(item),
         ...(config.tagsOf?.(item) || []),
       ].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(q);
+    }).sort((a, b) => {
+      if (!config.featuredFirst) return 0;
+      return Number(b.featured || false) - Number(a.featured || false);
     });
   }, [items, query, activeFilters, config]);
+
+  const dynamicOptions = useMemo(() => {
+    if (!config.dynamicFilter) return [];
+    const set = new Set();
+    items.forEach((item) => config.dynamicFilter.of(item).forEach((v) => set.add(v)));
+    return [...set].sort();
+  }, [items, config]);
 
   const openNew = () => {
     const blank = {};
@@ -173,6 +187,20 @@ export default function CrudPage({ config }) {
             </select>
           </span>
         ))}
+        {config.dynamicFilter && dynamicOptions.length > 0 && (
+          <span>
+            <label htmlFor={`filter-${config.dynamicFilter.key}`} className="sr-only">{config.dynamicFilter.label}</label>
+            <select
+              id={`filter-${config.dynamicFilter.key}`}
+              className="input w-auto"
+              value={activeFilters[config.dynamicFilter.key] || ""}
+              onChange={(e) => setActiveFilters({ ...activeFilters, [config.dynamicFilter.key]: e.target.value || undefined })}
+            >
+              <option value="">All technologies</option>
+              {dynamicOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </span>
+        )}
         <span className="ml-auto text-xs font-semibold" style={{ color: "var(--muted)" }} aria-live="polite">
           {loading ? "…" : `${visible.length} of ${items.length}`}
         </span>
@@ -209,6 +237,7 @@ export default function CrudPage({ config }) {
               <div className="flex items-start gap-2">
                 <div className="min-w-0">
                   <h3 className="truncate font-bold">{config.titleOf(item)}</h3>
+                  {item.featured && <span className="chip-lime mt-1 inline-block px-2 py-0.5 text-[11px] font-bold">★ Featured</span>}
                   {config.subOf(item) && (
                     <p className="truncate text-sm" style={{ color: "var(--muted)" }}>{config.subOf(item)}</p>
                   )}
@@ -268,7 +297,23 @@ export default function CrudPage({ config }) {
                   {config.fields.map((f, i) => (
                     <div key={f.name}>
                       <label className="label" htmlFor={`f-${f.name}`}>{f.label}{f.required && " *"}</label>
-                      {f.type === "textarea" ? (
+                      {f.type === "checkbox" ? (
+                    <label className="mt-1 flex cursor-pointer items-start gap-2.5 text-sm">
+                      <input
+                        id={`f-${f.name}`}
+                        ref={i === 0 ? firstField : undefined}
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 shrink-0"
+                        style={{ accentColor: "var(--brand)" }}
+                        checked={!!form[f.name]}
+                        onChange={(e) => setForm({ ...form, [f.name]: e.target.checked })}
+                      />
+                      <span>
+                        <span className="font-semibold">{f.label}</span>
+                        {f.help && <span className="block text-xs" style={{ color: "var(--muted)" }}>{f.help}</span>}
+                      </span>
+                    </label>
+                  ) : f.type === "textarea" ? (
                         <textarea
                           id={`f-${f.name}`}
                           ref={i === 0 ? firstField : undefined}
@@ -347,7 +392,7 @@ export default function CrudPage({ config }) {
               </p>
               <div className="mt-4 flex justify-end gap-2">
                 <button ref={firstField} onClick={() => setConfirming(null)} className="btn-ghost px-4 py-2 text-sm font-semibold">Cancel</button>
-                <button onClick={remove} className="px-4 py-2 text-sm font-bold" style={{ background: "var(--danger)", color: "#04120c", borderRadius: "0.75rem" }}>Delete</button>
+                <button onClick={remove} className="px-4 py-2 text-sm font-bold" style={{ background: "var(--danger)", color: "var(--brand-ink)", borderRadius: "0.65rem" }}>Delete</button>
               </div>
             </motion.div>
           </motion.div>

@@ -73,8 +73,8 @@ export default function Settings() {
         <h2 className="font-extrabold">Appearance</h2>
         <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Theme">
           {[
-            ["emerald", "🌙 Midnight Emerald", "Deep green, emerald glow"],
-            ["mist", "☀ Mist", "Light companion theme"],
+            ["ivory", "☀ Warm Ivory", "Light default · forest accents"],
+            ["emerald", "🌙 Midnight Emerald", "Dark option · emerald glow"],
           ].map(([value, name, desc]) => (
             <button
               key={value}

@@ -9,5 +9,7 @@
 | 5 | Readiness engine: weighted 0-100 score + 8-section breakdown + rule-based recommendations; `GET /api/dashboard/readiness` + `/summary`. | verified: score 70 + 4 contextual tips on seeded data |
 | 6 | Portfolio publish: slug claim (pattern + 409 on taken), publish flag, preview assembly, public `GET /portfolio/{username}` (404 unless published). | verified: 404→publish→200 full assembly |
 | 7 | Analytics: insert-only events (5 types, plain projectId so history survives deletes), public 202 ingest, private summary. | verified: 202s counted in summary |
-| 8 | React frontend | planned |
-| 9 | Testing, docs, deployment, viva prep | planned |
+| 8 | React frontend (Vite, Tailwind, Router, Axios): landing → auth → dashboard → 7 CRUD sections → preview/publish → public portfolio → analytics → settings. | verified: build OK, routes + APIs tested live |
+| 9 | Readiness unit tests (`ReadinessServiceTest`, mocked repos). | verified: 3/3 pass |
+| 10 | Redesign 1: Midnight Emerald dark theme, editorial landing, sidebar shell, charts, motion. | verified: build + lint clean, APIs live |
+| 11 | Redesign 2 (light): Warm Ivory `#F8F9F5` + Forest `#245C43` + Lime `#B8E986` system (emerald kept as optional dark); new landing headline + demo preview; recomposed dashboard (tint bands, lime-led action); grouped profile form; tech filter + featured flag on projects (backend: `featured` column, DTOs, service); editorial public portfolio (featured-first); forest/sage/lime analytics; Hikari hardening for TiDB idle timeouts. | verified 2026-10-09: build OK, lint 0 errors, mvn test 3/3, featured CRUD + public assembly live, readiness 85/70 recompute |

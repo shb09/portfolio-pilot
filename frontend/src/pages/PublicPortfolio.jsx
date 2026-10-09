@@ -30,7 +30,7 @@ export default function PublicPortfolio() {
           <span className="grad-text">Portfolio Pilot</span>
         </Link>
         <button onClick={toggle} className="btn-ghost ml-auto px-3 py-1.5 text-sm" aria-label="Toggle theme">
-          {theme === "emerald" ? "☀ Mist" : "🌙 Emerald"}
+          {theme === "ivory" ? "🌙 Emerald" : "☀ Ivory"}
         </button>
       </header>
       <main className="mx-auto max-w-4xl px-4 pb-16">

@@ -73,5 +73,6 @@ public class ProjectService {
         project.setTechStack(request.techStack());
         project.setGithubUrl(request.githubUrl());
         project.setLiveUrl(request.liveUrl());
+        project.setFeatured(request.featured() != null && request.featured());
     }
 }

@@ -47,6 +47,10 @@ public class Project {
     @Column(name = "live_url", length = 300)
     private String liveUrl;
 
+    /** Pinned to the top of "Selected work" on the public portfolio. */
+    @Column(nullable = false)
+    private Boolean featured = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -105,6 +109,14 @@ public class Project {
 
     public void setLiveUrl(String liveUrl) {
         this.liveUrl = liveUrl;
+    }
+
+    public Boolean getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(Boolean featured) {
+        this.featured = featured;
     }
 
     public Instant getCreatedAt() {

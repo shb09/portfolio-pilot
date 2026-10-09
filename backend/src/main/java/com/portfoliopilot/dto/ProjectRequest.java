@@ -8,5 +8,6 @@ public record ProjectRequest(
         String description,
         @Size(max = 500) String techStack,
         @Size(max = 300) String githubUrl,
-        @Size(max = 300) String liveUrl) {
+        @Size(max = 300) String liveUrl,
+        Boolean featured) {
 }
