@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { api, apiError } from "../api/client";
 import PublicView from "../components/PublicView";
+import Toast from "../components/Toast";
 
 export default function Preview() {
   const [data, setData] = useState(null);
   const [meta, setMeta] = useState({ username: "", tagline: "", published: false });
   const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState("");
 
   const load = async () => {
     try {
@@ -23,22 +24,20 @@ export default function Preview() {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const save = async (publish) => {
+    const slug = meta.username.toLowerCase().trim();
+    if (!slug) {
+      setError("Choose a username slug first (e.g. asha-sharma).");
+      return;
+    }
     setBusy(true);
     setError("");
-    setStatus("");
     try {
-      const { data } = await api.put("/portfolio", {
-        username: meta.username.toLowerCase().trim(),
-        tagline: meta.tagline || null,
-        published: publish,
-      });
+      const { data } = await api.put("/portfolio", { username: slug, tagline: meta.tagline || null, published: publish });
       setMeta(data);
-      setStatus(publish ? "🚀 Published! Your public link is live below." : "Saved as draft. Publish when ready.");
+      setToast(publish ? "🚀 Published — your public link is live" : "Draft saved");
       await load();
     } catch (err) {
       setError(apiError(err, "Could not save portfolio settings"));
@@ -51,55 +50,47 @@ export default function Preview() {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold tracking-tight">🚀 Preview & Publish</h1>
-      <p className="mt-1" style={{ color: "var(--muted)" }}>
-        Edit → Preview → Publish. Only published portfolios are publicly visible.
+      <h1 className="display text-3xl">Preview & Publish</h1>
+      <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+        Edit → preview exactly what visitors see → publish. Unpublished work stays invisible.
       </p>
 
-      <div className="glass card mt-6 p-6">
-        <div className="grid gap-3 sm:grid-cols-2">
+      {/* Floating glass controls */}
+      <div className="glass card sticky top-3 z-10 mt-5 p-4">
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
           <div>
-            <label className="label" htmlFor="username">Public username (slug) *</label>
-            <input id="username" className="input mt-1" value={meta.username || ""} onChange={(e) => setMeta({ ...meta, username: e.target.value })} placeholder="asha-sharma" />
+            <label className="label" htmlFor="username">Public username *</label>
+            <input id="username" className="input mt-1" value={meta.username || ""} onChange={(e) => setMeta({ ...meta, username: e.target.value })} placeholder="asha-sharma" autoComplete="off" />
           </div>
           <div>
             <label className="label" htmlFor="tagline">Tagline</label>
             <input id="tagline" className="input mt-1" value={meta.tagline || ""} onChange={(e) => setMeta({ ...meta, tagline: e.target.value })} placeholder="Aspiring Java developer" />
           </div>
+          <div className="flex items-end gap-2">
+            <button disabled={busy} onClick={() => save(false)} className="btn-ghost px-4 py-2 text-sm font-semibold">Save draft</button>
+            <button disabled={busy} onClick={() => save(true)} className="btn-brand px-4 py-2 text-sm">
+              {meta.published ? "Update live page" : "Publish 🚀"}
+            </button>
+          </div>
         </div>
-        {error && <p className="mt-3 text-sm" style={{ color: "var(--danger)" }}>{error}</p>}
-        {status && <p className="mt-3 text-sm font-semibold" style={{ color: "var(--ok)" }}>{status}</p>}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button disabled={busy} onClick={() => save(false)} className="btn-ghost px-4 py-2 text-sm font-semibold">
-            Save draft
-          </button>
-          <button disabled={busy} onClick={() => save(true)} className="btn-brand px-4 py-2 text-sm">
-            {meta.published ? "Update public page" : "Publish 🚀"}
-          </button>
+        {error && <p role="alert" className="mt-2 text-sm font-medium" style={{ color: "var(--danger)" }}>{error}</p>}
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
+          <span className="chip px-3 py-1 font-semibold" style={{ color: meta.published ? "var(--brand)" : "var(--muted)" }}>
+            {meta.published ? "● Live" : "○ Draft"}
+          </span>
           {meta.published && meta.username && (
             <>
-              {meta.published && (
-                <button
-                  onClick={() => save(false)}
-                  disabled={busy}
-                  className="btn-ghost px-4 py-2 text-sm"
-                  style={{ color: "var(--danger)" }}
-                >
-                  Unpublish
-                </button>
-              )}
-              <a href={publicUrl} target="_blank" rel="noreferrer" className="ml-auto text-sm font-semibold underline" style={{ color: "var(--brand)" }}>
-                {publicUrl} ↗
-              </a>
+              <a href={publicUrl} target="_blank" rel="noreferrer" className="font-semibold underline" style={{ color: "var(--brand)" }}>{publicUrl} ↗</a>
+              <button onClick={() => save(false)} disabled={busy} className="btn-danger-ghost px-3 py-1 text-xs font-semibold">Unpublish</button>
             </>
           )}
         </div>
       </div>
 
       <div className="mt-6">
-        <p className="label mb-2">Live preview — exactly what visitors see</p>
-        {data ? <PublicView data={data} onEvent={null} /> : <p style={{ color: "var(--muted)" }}>Loading preview…</p>}
+        {data ? <PublicView data={data} onEvent={null} /> : <div className="skeleton h-96" aria-label="Loading preview" />}
       </div>
+      <Toast message={toast} />
     </div>
   );
 }

@@ -48,7 +48,7 @@ export default function ProfilePage() {
       <p className="mt-1" style={{ color: "var(--muted)" }}>
         This powers your hero section, About, and contact links everywhere.
       </p>
-      <form onSubmit={save} className="glass card mt-6 space-y-3 p-6">
+      <form onSubmit={save} className="solid card mt-6 space-y-3 p-6">
         {error && <p className="text-sm" style={{ color: "var(--danger)" }}>{error}</p>}
         {status && <p className="text-sm font-semibold" style={{ color: "var(--ok)" }}>{status}</p>}
         {FIELDS.map(([name, label, ph]) => (

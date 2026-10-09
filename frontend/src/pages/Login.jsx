@@ -29,7 +29,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <Aurora />
-      <form onSubmit={submit} className="glass card w-full max-w-md p-8">
+      <form onSubmit={submit} className="solid card w-full max-w-md p-8">
         <div className="btn-brand flex h-11 w-11 items-center justify-center text-2xl">◈</div>
         <h1 className="mt-3 text-2xl font-extrabold">Welcome back, pilot</h1>
         <p className="text-sm" style={{ color: "var(--muted)" }}>

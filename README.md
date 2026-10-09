@@ -41,8 +41,10 @@ JWT (JJWT) + BCrypt · Maven · **TiDB Cloud only** (MySQL-compatible)
 
 **Frontend** — React 19 + Vite · Tailwind CSS 4 · React Router · Axios
 
-**Design** — 🌟 **Aura** light theme (aurora gradients, glassmorphism) + 🌙 **Dark**(space-glow) theme,
-one-tap toggle, persisted. Readiness ring, timelines, skill-level dots, gradient brand system.
+**Design** — 🌙 **Midnight Emerald** (deep-green foundation, emerald + restrained cyan accents,
+selective glass) + ☀ **Mist** light companion, one-tap toggle, persisted. Sidebar workspace,
+readiness ring, timelines, skill-level dots, editorial public portfolio, Framer Motion
+micro-interactions (reduced-motion aware).
 
 ## 🚀 Quickstart
 

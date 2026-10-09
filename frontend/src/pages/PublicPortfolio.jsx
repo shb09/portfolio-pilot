@@ -29,13 +29,13 @@ export default function PublicPortfolio() {
           <span className="btn-brand flex h-8 w-8 items-center justify-center">◈</span>
           <span className="grad-text">Portfolio Pilot</span>
         </Link>
-        <button onClick={toggle} className="btn-ghost ml-auto px-3 py-1.5 text-sm">
-          {theme === "aura" ? "🌙 Dark" : "✨ Aura"}
+        <button onClick={toggle} className="btn-ghost ml-auto px-3 py-1.5 text-sm" aria-label="Toggle theme">
+          {theme === "emerald" ? "☀ Mist" : "🌙 Emerald"}
         </button>
       </header>
       <main className="mx-auto max-w-4xl px-4 pb-16">
         {missing ? (
-          <div className="glass card p-12 text-center">
+          <div className="solid card p-12 text-center">
             <div className="text-5xl">🛰</div>
             <h1 className="mt-3 text-2xl font-extrabold">This portfolio isn't live</h1>
             <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>

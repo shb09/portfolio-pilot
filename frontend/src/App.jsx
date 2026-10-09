@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
 import Preview from "./pages/Preview";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import Settings from "./pages/Settings";
 import PublicPortfolio from "./pages/PublicPortfolio";
 
 function Guard({ children }) {
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/achievements" element={crud("achievements")} />
       <Route path="/preview" element={<Guard><Preview /></Guard>} />
       <Route path="/analytics" element={<Guard><AnalyticsPage /></Guard>} />
+      <Route path="/settings" element={<Guard><Settings /></Guard>} />
       <Route path="/portfolio/:username" element={<PublicPortfolio />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

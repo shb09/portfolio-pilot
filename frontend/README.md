@@ -1,18 +1,19 @@
 # Portfolio Pilot — Frontend
 
-React 19 + Vite + Tailwind 4 + React Router + Axios.
+React 19 + Vite + Tailwind 4 + React Router + Axios + Framer Motion.
 
 ## Themes
 
-- 🌟 **Aura** (default light): aurora gradient blobs, glass cards, violet→fuchsia→amber brand.
-- 🌙 **Dark**: deep-space indigo with neon glow. Toggle in navbar, persisted (`pp_theme`, `data-theme` attr).
+- 🌙 **Midnight Emerald** (default): `#071410` foundation, `#67F5AD` emerald + `#63E6E2` cyan accents, selective glass.
+- ☀ **Mist**: light companion in the same accent family. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
 
 ## Flow
 
-`/ → /login /register → /dashboard (readiness ring + tips + stats) → /profile /projects
-/skills /education /experience /certifications /achievements (generic CrudPage) →
-/preview (edit slug → preview → publish) → /portfolio/:username (public, fires analytics)
-→ /analytics`
+`/ → /login /register → /dashboard (welcome, readiness, publish status, linked next action,
+stats, recents) → /profile /projects /skills /education /experience /certifications
+/achievements (searchable CrudPage) → /preview (floating glass controls → publish) →
+/portfolio/:username (public editorial portfolio, fires analytics) → /analytics (charts)
+→ /settings (account, theme, public link)`
 
 ## Dev
 

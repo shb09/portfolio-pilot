@@ -45,6 +45,7 @@ export const MODULES = {
     metaOf: () => "",
     tagsOf: (s) => [s.level].filter(Boolean),
     linksOf: () => [],
+    filters: [{ key: "level", label: "Level", options: ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"], of: (s) => s.level }],
   },
   education: {
     endpoint: "/education",
