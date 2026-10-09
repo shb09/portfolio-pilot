@@ -74,7 +74,7 @@ export default function Settings() {
         <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Theme">
           {[
             ["porcelain", "Porcelain light", "Default · cobalt accents"],
-            ["emerald", "Midnight emerald", "Dark option · emerald glow"],
+            ["charcoal", "Charcoal dark", "Dark option · cobalt accents"],
           ].map(([value, name, desc]) => (
             <button
               key={value}

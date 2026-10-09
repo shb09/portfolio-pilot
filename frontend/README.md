@@ -5,7 +5,7 @@ React 19 + Vite + Tailwind 4 + React Router + Axios + Framer Motion.
 ## Themes
 
 - **Porcelain** (default): `#F7F7F4` background, white surfaces, periwinkle `#E8E9FF` sections, cobalt `#5155E8` actions.
-- **Midnight Emerald**: preserved dark option. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
+- **Charcoal** (dark): `#111218` background, `#191A23` surfaces, cobalt `#8588FF` accents. No green in either theme — green (`--success`) is reserved for semantic success text only. Toggle in sidebar/header, persisted (`pp_theme`, `data-theme` attr).
 
 ## Flow
 

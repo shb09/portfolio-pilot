@@ -1,62 +1,92 @@
 @import "tailwindcss";
 
 /* ============ Portfolio Pilot — Porcelain + Ink + Cobalt ============
-   DEFAULT light theme: porcelain background, white surfaces, periwinkle
-   secondary surfaces, cobalt reserved for primary actions, active states,
-   and key visualizations. Companion "emerald" dark theme preserved as an
-   option. Toggle via <html data-theme>; surfaces read CSS vars. */
+   LIGHT (default): porcelain background, white surfaces, periwinkle
+   secondary surfaces, cobalt primary actions.
+   DARK: neutral charcoal surfaces, periwinkle/cobalt accents.
+   Green appears ONLY in --success for semantic success text.
+   Toggle via <html data-theme="porcelain|charcoal">. */
 
 :root,
 [data-theme="porcelain"] {
-  --bg: #f7f7f4;
-  --bg-soft: #ffffff;
-  --surface: rgba(255, 255, 255, 0.86);
-  --surface-solid: #ffffff;
-  --surface-tint: #f0f0fa;
-  --ink: #191a26;
-  --muted: #737584;
-  --line: #e8e8ed;
-  --brand: #5155e8;
-  --brand-strong: #4044cc;
-  --brand-soft: #e8e9ff;
+  --background: #f7f7f4;
+  --surface: #ffffff;
+  --surface-secondary: #f0f0fa;
+  --surface-tertiary: #f2f3f7;
+  --text-primary: #191a26;
+  --text-secondary: #737584;
+  --accent: #5155e8;
+  --accent-hover: #4044cc;
+  --accent-soft: #e8e9ff;
+  --border: #e8e8ed;
+  --border-strong: #d6d7e1;
+  --success: #287a56;
+  --warning: #a96a1d;
+  --error: #c44747;
+
+  /* Component aliases (shared token API) */
+  --bg: var(--background);
+  --bg-soft: var(--surface);
+  --surface-solid: var(--surface);
+  --surface-tint: var(--surface-secondary);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --line: var(--border);
+  --brand: var(--accent);
+  --brand-strong: var(--accent-hover);
+  --brand-soft: var(--accent-soft);
   --brand-ink: #ffffff;
-  --ring-track: #e8e9ff;
+  --ring-track: var(--accent-soft);
   --glow: none;
-  --shadow: 0 1px 2px rgba(25, 26, 38, 0.05), 0 12px 28px -20px rgba(81, 85, 232, 0.22);
+  --shadow: 0 1px 2px rgba(25, 26, 38, 0.05), 0 16px 32px -24px rgba(81, 85, 232, 0.25);
   --nav: rgba(247, 247, 244, 0.9);
-  --sidebar: #ffffff;
-  --chip: #f2f3f7;
-  --danger: #c44747;
-  --ok: #287a56;
-  --warn: #a96a1d;
-  --focus: #5155e8;
+  --sidebar: var(--surface);
+  --chip: var(--surface-tertiary);
+  --danger: var(--error);
+  --ok: var(--success);
+  --warn: var(--warning);
+  --focus: var(--accent);
   color-scheme: light;
 }
 
-/* Preserved optional dark theme. */
-[data-theme="emerald"] {
-  --bg: #071410;
-  --bg-soft: #0b1c16;
-  --surface: rgba(16, 37, 28, 0.72);
-  --surface-solid: #10251c;
-  --surface-tint: #0e2018;
-  --ink: #f0f8f3;
-  --muted: #9cb5a6;
-  --line: rgba(103, 245, 173, 0.14);
-  --brand: #67f5ad;
-  --brand-strong: #a7f3c9;
-  --brand-soft: rgba(103, 245, 173, 0.14);
-  --brand-ink: #04120c;
-  --ring-track: rgba(103, 245, 173, 0.14);
-  --glow: 0 6px 24px -10px rgba(103, 245, 173, 0.35);
-  --shadow: 0 14px 34px -16px rgba(0, 0, 0, 0.55);
-  --nav: rgba(7, 20, 16, 0.86);
-  --sidebar: #0b1c16;
-  --chip: rgba(103, 245, 173, 0.09);
-  --danger: #f38ba8;
-  --ok: #67f5ad;
-  --warn: #f5c567;
-  --focus: #63e6e2;
+[data-theme="charcoal"] {
+  --background: #111218;
+  --surface: #191a23;
+  --surface-secondary: #20212d;
+  --surface-tertiary: #262736;
+  --text-primary: #f5f5fa;
+  --text-secondary: #a5a7b7;
+  --accent: #8588ff;
+  --accent-hover: #a0a2ff;
+  --accent-soft: #292a4b;
+  --border: #30313f;
+  --border-strong: #414254;
+  --success: #65c997;
+  --warning: #e6b66a;
+  --error: #ff8585;
+
+  /* Component aliases (shared token API) */
+  --bg: var(--background);
+  --bg-soft: var(--surface);
+  --surface-solid: var(--surface);
+  --surface-tint: var(--surface-secondary);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --line: var(--border);
+  --brand: var(--accent);
+  --brand-strong: var(--accent-hover);
+  --brand-soft: var(--accent-soft);
+  --brand-ink: #0e0f16;
+  --ring-track: var(--accent-soft);
+  --glow: none;
+  --shadow: 0 14px 32px -18px rgba(0, 0, 0, 0.6);
+  --nav: rgba(17, 18, 24, 0.88);
+  --sidebar: var(--surface);
+  --chip: var(--surface-tertiary);
+  --danger: var(--error);
+  --ok: var(--success);
+  --warn: var(--warning);
+  --focus: var(--accent);
   color-scheme: dark;
 }
 
@@ -109,7 +139,7 @@ h1, h2, h3 {
   height: 34vmax;
   border-radius: 9999px;
   filter: blur(110px);
-  opacity: 0.55;
+  opacity: 0.6;
 }
 .aurora span:nth-child(1) {
   right: -12vmax;
@@ -124,20 +154,14 @@ h1, h2, h3 {
 .aurora span:nth-child(3) {
   display: none;
 }
-[data-theme="emerald"] .aurora span:nth-child(1) {
-  background: radial-gradient(circle, #0e9f6e, transparent 65%);
+[data-theme="charcoal"] .aurora span {
   opacity: 0.16;
 }
-[data-theme="emerald"] .aurora span:nth-child(2) {
-  background: radial-gradient(circle, #0e7490, transparent 65%);
-  opacity: 0.12;
+[data-theme="charcoal"] .aurora span:nth-child(1) {
+  background: radial-gradient(circle, #292a4b, transparent 65%);
 }
-[data-theme="emerald"] .aurora span:nth-child(3) {
-  display: block;
-  left: 24vw;
-  bottom: -20vmax;
-  background: radial-gradient(circle, #166534, transparent 65%);
-  opacity: 0.14;
+[data-theme="charcoal"] .aurora span:nth-child(2) {
+  background: radial-gradient(circle, #20212d, transparent 65%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .aurora span {
@@ -164,6 +188,9 @@ h1, h2, h3 {
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
 }
+[data-theme="porcelain"] .glass {
+  background: rgba(255, 255, 255, 0.88);
+}
 @supports not (backdrop-filter: blur(1px)) {
   .glass {
     background: var(--surface-solid);
@@ -188,11 +215,6 @@ h1, h2, h3 {
   background-clip: text;
   color: transparent;
 }
-[data-theme="emerald"] .grad-text {
-  background: linear-gradient(100deg, var(--brand), #63e6e2);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
 
 /* Controls — cobalt carries primary actions */
 .btn-brand {
@@ -210,8 +232,8 @@ h1, h2, h3 {
   background: var(--brand-strong);
   transform: translateY(-1px);
 }
-[data-theme="emerald"] .btn-brand:hover {
-  filter: brightness(1.1);
+[data-theme="charcoal"] .btn-brand:hover {
+  filter: brightness(1.08);
 }
 .btn-brand:disabled {
   opacity: 0.55;
@@ -228,7 +250,7 @@ h1, h2, h3 {
   gap: 0.4rem;
 }
 .btn-ghost:hover {
-  border-color: var(--brand);
+  border-color: var(--border-strong);
   background: var(--surface-tint);
 }
 .btn-danger-ghost {
@@ -266,7 +288,7 @@ h1, h2, h3 {
 .input {
   width: 100%;
   border-radius: 0.55rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-strong);
   background: var(--surface-solid);
   color: var(--ink);
   padding: 0.55rem 0.75rem;
@@ -274,7 +296,7 @@ h1, h2, h3 {
   outline: none;
 }
 [data-theme="porcelain"] .input {
-  background: #fbfbf8;
+  background: #fcfcfa;
 }
 .input:focus {
   border-color: var(--brand);
@@ -308,16 +330,6 @@ select.input option {
   border: 1px solid var(--line);
   border-radius: 9999px;
 }
-.chip-lime {
-  background: var(--brand-soft);
-  border: 1px solid transparent;
-  color: var(--brand-strong);
-  border-radius: 9999px;
-}
-[data-theme="emerald"] .chip-lime {
-  background: rgba(103, 245, 173, 0.16);
-  color: var(--brand);
-}
 .chip-accent {
   background: var(--brand);
   color: var(--brand-ink);
@@ -334,7 +346,7 @@ select.input option {
   color: var(--brand-strong);
   flex-shrink: 0;
 }
-[data-theme="emerald"] .icon-tile {
+[data-theme="charcoal"] .icon-tile {
   color: var(--brand);
 }
 
@@ -357,7 +369,7 @@ select.input option {
   border-left-color: var(--brand);
   font-weight: 700;
 }
-[data-theme="emerald"] .navlink.active {
+[data-theme="charcoal"] .navlink.active {
   color: var(--brand);
 }
 .nav-section {
@@ -390,7 +402,7 @@ select.input option {
   }
 }
 
-/* Readiness bars */
+/* Readiness bars — cobalt primary */
 .bar-track {
   background: var(--ring-track);
   border-radius: 9999px;
@@ -400,15 +412,12 @@ select.input option {
   border-radius: 9999px;
   transition: width 0.6s ease;
 }
-.bar-fill.lime {
-  background: var(--brand-strong);
-}
 .timeline-dot {
   background: var(--brand);
   box-shadow: 0 0 0 4px var(--brand-soft);
 }
 
-/* Focus visibility */
+/* Focus visibility — cobalt rings */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -437,8 +446,8 @@ textarea:focus-visible {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
   animation: shimmer 1.4s infinite;
 }
-[data-theme="emerald"] .skeleton::after {
-  background: linear-gradient(90deg, transparent, var(--chip), transparent);
+[data-theme="charcoal"] .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(133, 136, 255, 0.12), transparent);
 }
 @keyframes shimmer {
   from {
@@ -449,7 +458,7 @@ textarea:focus-visible {
   }
 }
 
-/* Toast */
+/* Toasts — ink surface, semantic text */
 .toast {
   background: var(--ink);
   color: var(--bg);

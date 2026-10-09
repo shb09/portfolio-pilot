@@ -42,7 +42,8 @@ JWT (JJWT) + BCrypt · Maven · **TiDB Cloud only** (MySQL-compatible)
 **Frontend** — React 19 + Vite · Tailwind CSS 4 · React Router · Axios
 
 **Design** — **Porcelain + Ink + Cobalt** light theme (porcelain `#F7F7F4`, ink `#191A26`,
-cobalt `#5155E8` actions, periwinkle `#E8E9FF` surfaces) + optional Midnight Emerald dark mode,
+cobalt `#5155E8` actions, periwinkle `#E8E9FF` surfaces) + **Charcoal** dark theme (`#111218`,
+cobalt `#8588FF` accents). Zero green brand usage — green reserved for semantic success text.
 Lucide icon system, compact 228px sidebar, editorial public portfolio, Framer Motion
 micro-interactions (reduced-motion aware).
 
