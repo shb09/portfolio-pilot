@@ -502,7 +502,7 @@ export default function CrudPage({ config }) {
               </p>
               <div className="mt-4 flex justify-end gap-2">
                 <button ref={firstField} onClick={() => setConfirming(null)} className="btn-ghost px-4 py-2 text-[13px] font-semibold">Cancel</button>
-                <button onClick={remove} className="px-4 py-2 text-[13px] font-bold" style={{ background: "var(--danger)", color: "#fff", borderRadius: "0.55rem" }}>Delete</button>
+                <button onClick={remove} className="px-4 py-2 text-[13px] font-bold" style={{ background: "var(--danger)", color: "var(--brand-ink)", borderRadius: "0.55rem" }}>Delete</button>
               </div>
             </motion.div>
           </motion.div>

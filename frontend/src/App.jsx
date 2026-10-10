@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import Layout from "./components/Layout";
 import Aurora from "./components/Aurora";
+import AmbientGlow from "./components/AmbientGlow";
+import Ripple from "./components/Ripple";
 import CrudPage from "./components/CrudPage";
 import { MODULES } from "./config/modules";
 import Landing from "./pages/Landing";
@@ -53,7 +55,10 @@ const crud = (key) => (
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <AmbientGlow />
+      <Ripple />
+      <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -75,6 +80,7 @@ export default function App() {
       <Route path="/settings" element={<Guard><Settings /></Guard>} />
       <Route path="/portfolio/:username" element={<PublicPortfolio />} />
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
