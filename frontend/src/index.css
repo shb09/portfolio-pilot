@@ -188,6 +188,24 @@ h1, h2, h3 {
   border: 1.5px solid var(--line-strong);
   box-shadow: var(--shadow);
 }
+/* Selective liquid-glass for floating menus, dropdowns and overlays only.
+   Content panels stay solid. Falls back to solid when blur is unavailable. */
+.glass-pop {
+  background: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  border: 1.5px solid var(--line-strong);
+  box-shadow: var(--shadow);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-pop {
+    background: var(--surface-solid);
+  }
+}
+.blur-backdrop {
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
 .solid {
   background: var(--surface-solid);
   border: 1.5px solid var(--line-strong);

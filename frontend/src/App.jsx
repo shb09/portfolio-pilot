@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Verify from "./pages/Verify";
 import Forgot from "./pages/Forgot";
 import Reset from "./pages/Reset";
+import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
 import Preview from "./pages/Preview";
@@ -59,6 +60,7 @@ export default function App() {
       <Route path="/verify" element={<Verify />} />
       <Route path="/forgot" element={<Forgot />} />
       <Route path="/reset" element={<Reset />} />
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/dashboard" element={<Guard><Dashboard /></Guard>} />
       <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
       <Route path="/profile" element={<Guard><ProfilePage /></Guard>} />

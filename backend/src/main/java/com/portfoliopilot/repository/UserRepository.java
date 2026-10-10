@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByResetTokenHash(String hash);
 
+    Optional<User> findByGoogleSub(String googleSub);
+
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);

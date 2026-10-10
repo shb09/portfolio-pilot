@@ -24,6 +24,7 @@ Browser (React SPA)
 | `APP_MAIL_FROM` | Sender shown to users | `Portfolio Pilot <no-reply@example.com>` |
 | `APP_ADMIN_EMAIL` / `APP_ADMIN_USERNAME` / `APP_ADMIN_PASSWORD` | One-time admin bootstrap (blank password = skipped) | — |
 | `APP_AUTH_DEV_MODE` | Local testing only (**must be `false`/unset in prod**) | `false` |
+| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth (absent = Google button hidden, password-only) | — |
 
 ### Frontend (build-time)
 
@@ -35,12 +36,35 @@ Browser (React SPA)
 Backend CORS: set `app.cors.allowed-origins` (currently only in code default `http://localhost:5173`;
 pass `--app.cors.allowed-origins=https://app.example.com` or env if wired) to the frontend origin.
 
+## Google OAuth setup (optional, password login always works)
+
+Backend implements authorization-code + OIDC (`OAuthClientConfig`, `GoogleLinkingService`,
+`HandoffStore`, `OAuthHandlers`); frontend has the Google button (hidden unless configured),
+`/oauth/callback` exchange, and role-based redirect. Status: **implemented, tested with mocks,
+NOT end-to-end tested — no Google credentials exist in this environment.**
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials →
+   Create Credentials → **OAuth client ID** → Application type **Web application**.
+2. Under Authorized redirect URIs add exactly (scheme/host/port/path must match):
+   - local: `http://localhost:8080/login/oauth2/code/google`
+   - prod: `https://<api-host>/login/oauth2/code/google`
+3. Configure the OAuth consent screen (app name, support email); while in Testing mode,
+   add tester Gmail addresses under Test users.
+4. Set backend env (never in code, never in the frontend):
+   `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`.
+5. Restart backend; `GET /api/auth/oauth/status` → `{"googleEnabled":true}`; the login page
+   shows “Continue with Google”.
+6. Test: click → Google consent → redirect to `/oauth/callback?code=…` → dashboard.
+   Colliding password-account emails are rejected (409, keeps password login); ADMIN
+   accounts must use password login; unverified Google emails are rejected.
+
 ## Deployment checklist
 
 - [ ] TiDB database `portfolio_pilot` exists; app has least-privilege credentials.
 - [ ] `JWT_SECRET` unique, ≥32 chars, stored in the platform secret manager.
 - [ ] `APP_BASE_URL` is the real https origin (verification/reset links depend on it).
 - [ ] SMTP configured + test registration delivers mail; `APP_AUTH_DEV_MODE` is **unset/false**.
+- [ ] Google OAuth credentials set (or deliberately omitted — button hides itself); redirect URI registered exactly.
 - [ ] Admin bootstrapped via env, then **rotate the initial password** and unset `APP_ADMIN_PASSWORD`.
 - [ ] Frontend built with `VITE_API_URL`; SPA fallback (rewrite → `/index.html`) configured on the host.
 - [ ] CORS allowlist = frontend origin only (no `*` with credentials).

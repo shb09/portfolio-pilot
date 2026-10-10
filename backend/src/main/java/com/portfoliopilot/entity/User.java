@@ -70,6 +70,13 @@ public class User {
     @Column(name = "reset_expiry")
     private Instant resetExpiry;
 
+    /**
+     * Google OIDC subject (stable provider identity). Nullable so existing
+     * rows survive the additive migration; unique when present.
+     */
+    @Column(name = "google_sub", unique = true, length = 100)
+    private String googleSub;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -168,6 +175,14 @@ public class User {
 
     public void setResetExpiry(Instant resetExpiry) {
         this.resetExpiry = resetExpiry;
+    }
+
+    public String getGoogleSub() {
+        return googleSub;
+    }
+
+    public void setGoogleSub(String googleSub) {
+        this.googleSub = googleSub;
     }
 
     public Instant getCreatedAt() {

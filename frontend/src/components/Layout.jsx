@@ -67,6 +67,8 @@ export default function Layout({ children }) {
   const [navHidden, setNavHidden] = useState(false);
   const lastY = useRef(0);
   const lastHidden = useRef(false);
+  const menuButtonRef = useRef(null);
+  const drawerRef = useRef(null);
   const headerRef = useRef(null);
   const moreRef = useDismiss(() => setMoreOpen(false));
   const accountRef = useDismiss(() => setAccountOpen(false));
@@ -81,6 +83,21 @@ export default function Layout({ children }) {
   const moreActive = MORE.some(([, to]) => to === location.pathname);
   const mobileLinks = [...MAIN, ...MORE, ["Analytics", "/analytics", BarChart3], ...INSIGHTS,
     ...(isAdmin ? [["Admin", "/admin", ShieldCheck]] : []), ["Settings", "/settings", SettingsIcon]];
+
+  // Mobile drawer: Escape dismisses, focus moves in on open and back on close.
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const t = setTimeout(() => drawerRef.current?.querySelector("a, button")?.focus(), 60);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      clearTimeout(t);
+      menuButtonRef.current?.focus();
+    };
+  }, [mobileOpen]);
 
   // Scroll behavior: hide on scroll down, reveal on scroll up. Never hides
   // while menus are open, focus sits in the header, or reduced motion is on.
@@ -130,11 +147,11 @@ export default function Layout({ children }) {
       {/* Compact top navigation */}
       <header ref={headerRef} className="sticky top-0 z-20 border-b-2" style={{ background: "var(--nav)", borderColor: "var(--line-strong)", transform: navHidden ? "translateY(-100%)" : "none", transition: "transform 0.22s ease" }}>
         <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3.5 py-2 sm:px-5">
-          <Link to="/dashboard" className="mr-1 flex items-center gap-2">
+          <Link to="/dashboard" className="mr-1 flex shrink-0 items-center gap-2">
             <BrandMark />
             <span className="hidden text-sm font-extrabold tracking-tight min-[420px]:block">PORTFOLIO&nbsp;PILOT</span>
           </Link>
-          <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Primary">
+          <nav className="ml-2 hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex" aria-label="Primary">
             {MAIN.map(mainLink)}
             <div className="relative" ref={moreRef}>
               <button
@@ -152,7 +169,7 @@ export default function Layout({ children }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.14 }}
-                    className="solid card absolute left-0 top-full z-30 mt-1.5 w-52 p-1.5"
+                    className="glass-pop card absolute left-0 top-full z-30 mt-1.5 w-52 p-1.5"
                     role="menu"
                   >
                     {MORE.map(([name, to, Icon]) => (
@@ -218,7 +235,7 @@ export default function Layout({ children }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.14 }}
-                    className="solid card absolute right-0 top-full z-30 mt-1.5 w-60 p-1.5"
+                    className="glass-pop card absolute right-0 top-full z-30 mt-1.5 w-60 p-1.5"
                     role="menu"
                   >
                     <p className="truncate px-2.5 pb-1 pt-1.5 text-xs font-bold">{user?.name}</p>
@@ -255,6 +272,7 @@ export default function Layout({ children }) {
               </AnimatePresence>
             </div>
             <button
+              ref={menuButtonRef}
               onClick={() => setMobileOpen((o) => !o)}
               className="btn-ghost p-1.5 lg:hidden"
               aria-expanded={mobileOpen}
@@ -268,6 +286,7 @@ export default function Layout({ children }) {
         <AnimatePresence>
           {mobileOpen && (
             <motion.nav
+              ref={drawerRef}
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}

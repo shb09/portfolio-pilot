@@ -1,6 +1,7 @@
 package com.portfoliopilot.config;
 
 import com.portfoliopilot.security.JwtAuthFilter;
+import com.portfoliopilot.security.OAuthHandlers;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +32,15 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final OAuthHandlers.Success oauthSuccessHandler;
+    private final OAuthHandlers.Failure oauthFailureHandler;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+            OAuthHandlers.Success oauthSuccessHandler,
+            OAuthHandlers.Failure oauthFailureHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.oauthSuccessHandler = oauthSuccessHandler;
+        this.oauthFailureHandler = oauthFailureHandler;
     }
 
     @Bean
@@ -52,10 +59,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/health", "/api/health/db").permitAll()
                         .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/analytics/event").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
+                        .successHandler(oauthSuccessHandler)
+                        .failureHandler(oauthFailureHandler))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);

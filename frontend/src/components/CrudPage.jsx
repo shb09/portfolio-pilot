@@ -382,7 +382,7 @@ export default function CrudPage({ config }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            className="fixed inset-0 z-30 flex items-center justify-center bg-black/45 p-4"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-black/45 p-4 blur-backdrop"
             onClick={() => setEditing(null)}
           >
             <motion.div
@@ -481,7 +481,7 @@ export default function CrudPage({ config }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            className="fixed inset-0 z-30 flex items-center justify-center bg-black/45 p-4"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-black/45 p-4 blur-backdrop"
             onClick={() => setConfirming(null)}
           >
             <motion.div

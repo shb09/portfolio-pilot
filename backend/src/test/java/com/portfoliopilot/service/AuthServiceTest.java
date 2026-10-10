@@ -34,6 +34,8 @@ class AuthServiceTest {
     private JwtService jwtService;
     @Mock
     private RateLimiter rateLimiter;
+    @Mock
+    private com.portfoliopilot.service.HandoffStore handoffStore;
 
     @InjectMocks
     private AuthService authService;

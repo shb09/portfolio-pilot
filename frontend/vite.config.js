@@ -10,6 +10,8 @@ export default defineConfig({
       // Dev: same-origin calls, no CORS headaches.
       '/api': 'http://localhost:8080',
       '/portfolio': 'http://localhost:8080',
+      '/oauth2': 'http://localhost:8080',
+      '/login/oauth2': 'http://localhost:8080',
     },
   },
 })

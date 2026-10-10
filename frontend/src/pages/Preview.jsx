@@ -55,8 +55,8 @@ export default function Preview() {
         Edit → preview exactly what visitors see → publish. Unpublished work stays invisible.
       </p>
 
-      {/* Floating glass controls */}
-      <div className="glass card sticky top-3 z-10 mt-5 p-4">
+      {/* Floating controls — offset below the sticky header (z-20) */}
+      <div className="glass-pop card sticky top-[68px] z-10 mt-5 p-4">
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
           <div>
             <label className="label" htmlFor="username">Public username *</label>

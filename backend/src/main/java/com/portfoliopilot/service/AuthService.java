@@ -25,13 +25,15 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RateLimiter rateLimiter;
+    private final HandoffStore handoffStore;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            JwtService jwtService, RateLimiter rateLimiter) {
+            JwtService jwtService, RateLimiter rateLimiter, HandoffStore handoffStore) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.rateLimiter = rateLimiter;
+        this.handoffStore = handoffStore;
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -56,6 +58,22 @@ public class AuthService {
         return userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
                 .orElse(null);
+    }
+
+    /**
+     * OAuth handoff exchange: single-use code → application JWT.
+     * Replays and expired codes fail closed with 401.
+     */
+    public AuthResponse oauthExchange(String code) {
+        rateLimiter.check("oauth-exchange", code == null ? "blank" : code, 5, 300);
+        String email = handoffStore.consume(code)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        "This sign-in attempt expired or was already used. Please try again."));
+        User user = userRepository.findByEmail(email)
+                .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && Boolean.TRUE.equals(u.getEmailVerified()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        "This sign-in attempt is no longer valid. Please try again."));
+        return new AuthResponse(jwtService.generate(user.getEmail(), user.getRole()), UserDto.from(user));
     }
 
     public UserDto me(String email) {
