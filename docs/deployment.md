@@ -117,6 +117,39 @@ Verify afterwards: (1) login as `admin` with the new password → 200 + `"role":
 (4) `GET /api/admin/stats` with the new token → 200; (5) an ordinary user's token
 on `/api/admin/*` → 403.
 
+## Production topology: Vercel (frontend) + Render (backend) + TiDB Cloud
+
+### Backend on Render — exact settings
+
+- **Root directory:** `backend` · **Build command:** `mvn -q clean package -DskipTests`
+  (or `./mvnw` equivalent; repo uses system Maven) · **Start command:**
+  `java -jar target/portfolio-pilot-0.0.1-SNAPSHOT.jar`
+- **Java version:** set `JAVA_VERSION=21` (Render env) so the toolchain matches `pom.xml`.
+- **Port:** app reads `PORT` automatically (`server.port=${PORT:8080}`); no code change needed.
+- **Health check path:** `/api/health` (public, no user data; `/api/health/db` also exists for DB-aware probes).
+- **Environment variables (Render dashboard → Environment, never in Git):**
+  `TIDB_URL`, `TIDB_USER`, `TIDB_PASSWORD`, `JWT_SECRET` (≥32 chars, fresh value),
+  `APP_BASE_URL=https://<vercel-app>.vercel.app`, `APP_CORS_ALLOWED_ORIGINS=https://<vercel-app>.vercel.app`,
+  SMTP vars (`SPRING_MAIL_*`, `APP_MAIL_FROM`), `GOOGLE_OAUTH_CLIENT_ID` /
+  `GOOGLE_OAUTH_CLIENT_SECRET` (only if enabling Google login),
+  **leave `APP_AUTH_DEV_MODE` unset**, **leave `APP_ADMIN_PASSWORD` unset**
+  (bootstrap skips; admin already exists in TiDB).
+- **Schema:** Hibernate `ddl-auto=update` applies additive changes (e.g. `google_sub` column);
+  no destructive operation. Adopt `validate` + reviewed migrations afterwards.
+
+### Frontend on Vercel — exact settings
+
+- **Root directory:** `frontend` · **Framework preset:** Vite ·
+  **Build command:** `npm run build` · **Output directory:** `dist`.
+- **Environment variable:** `VITE_API_URL=https://<render-backend>.onrender.com`
+  (this is the exact variable `src/api/client.js` reads; Login's Google button prefixes it too).
+  No secrets in any `VITE_*` variable.
+- **SPA rewrites:** already covered — `frontend/vercel.json` rewrites all routes to `/`
+  and `frontend/public/_redirects` covers Netlify-style hosts.
+- **Google OAuth production callback** (register after Render assigns the host):
+  `https://<render-backend>.onrender.com/login/oauth2/code/google`
+  Keep the localhost callback registered too for development.
+
 ## Known limitations
 
 - No browser in this environment: pixel-level theme/layout checks need one real-browser pass.

@@ -37,8 +37,28 @@ function BrandMark({ size = 28 }) {
   );
 }
 
-function useDismiss(onClose) {
-  const ref = useRef(null);
+function NavGroup({ label, items, onGo }) {
+  return (
+    <div>
+      <p className="nav-section px-2.5 pb-1 pt-2.5">{label}</p>
+      <ul className="space-y-px">
+        {items.map(([name, to, Icon]) => (
+          <li key={to}>
+            <NavLink
+              to={to}
+              onClick={onGo}
+              className={({ isActive }) => `navlink flex items-center gap-2.5 px-3 py-2.5${isActive ? " active" : ""}`}
+            >
+              <Icon size={15} aria-hidden="true" /> {name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function useDismiss(onClose) {  const ref = useRef(null);
   useEffect(() => {
     const onDoc = (e) => {
       if (ref.current && !ref.current.contains(e.target)) onClose();
@@ -65,8 +85,10 @@ export default function Layout({ children }) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const lastY = useRef(0);
   const lastHidden = useRef(false);
+  const lastScrolled = useRef(false);
   const menuButtonRef = useRef(null);
   const drawerRef = useRef(null);
   const headerRef = useRef(null);
@@ -81,19 +103,22 @@ export default function Layout({ children }) {
   const all = [...MAIN, ...MORE, ...INSIGHTS, ["Analytics", "/analytics", BarChart3], ["Settings", "/settings", SettingsIcon], ["Admin", "/admin", ShieldCheck]];
   const crumb = all.find(([, to]) => to === location.pathname)?.[0] || "Workspace";
   const moreActive = MORE.some(([, to]) => to === location.pathname);
-  const mobileLinks = [...MAIN, ...MORE, ["Analytics", "/analytics", BarChart3], ...INSIGHTS,
-    ...(isAdmin ? [["Admin", "/admin", ShieldCheck]] : []), ["Settings", "/settings", SettingsIcon]];
 
-  // Mobile drawer: Escape dismisses, focus moves in on open and back on close.
+  // Mobile drawer: Escape/outside dismiss, focus moves in on open and back on close.
   useEffect(() => {
     if (!mobileOpen) return undefined;
     const onKey = (e) => {
       if (e.key === "Escape") setMobileOpen(false);
     };
+    const onDoc = (e) => {
+      if (headerRef.current && !headerRef.current.contains(e.target)) setMobileOpen(false);
+    };
     document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDoc);
     const t = setTimeout(() => drawerRef.current?.querySelector("a, button")?.focus(), 60);
     return () => {
       document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDoc);
       clearTimeout(t);
       menuButtonRef.current?.focus();
     };
@@ -124,6 +149,11 @@ export default function Layout({ children }) {
             setNavHidden(next);
           }
         }
+        const isScrolled = y > 8;
+        if (isScrolled !== lastScrolled.current) {
+          lastScrolled.current = isScrolled;
+          setScrolled(isScrolled);
+        }
         lastY.current = y;
       });
     };
@@ -145,7 +175,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen">
       {/* Compact top navigation */}
-      <header ref={headerRef} className="sticky top-0 z-20 border-b-2" style={{ background: "var(--nav)", borderColor: "var(--line-strong)", transform: navHidden ? "translateY(-100%)" : "none", transition: "transform 0.22s ease" }}>
+      <header ref={headerRef} className="sticky top-0 z-20 border-b-2" style={{ background: scrolled ? "color-mix(in srgb, var(--nav) 86%, transparent)" : "var(--nav)", backdropFilter: scrolled ? "blur(12px)" : "none", WebkitBackdropFilter: scrolled ? "blur(12px)" : "none", borderColor: "var(--line-strong)", transform: navHidden ? "translateY(-100%)" : "none", transition: "transform 0.22s ease, background 0.2s ease" }}>
         <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3.5 py-2 sm:px-5">
           <Link to="/dashboard" className="mr-1 flex shrink-0 items-center gap-2">
             <BrandMark />
@@ -296,16 +326,18 @@ export default function Layout({ children }) {
               aria-label="Primary"
             >
               <div className="grid gap-0.5 px-3.5 py-3">
-                {mobileLinks.map(([name, to, Icon]) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    onClick={() => setMobileOpen(false)}
-                    className={({ isActive }) => `navlink flex items-center gap-2.5 px-3 py-2.5${isActive ? " active" : ""}`}
-                  >
-                    <Icon size={15} aria-hidden="true" /> {name}
-                  </NavLink>
-                ))}
+                <NavGroup label="Workspace" items={MAIN} onGo={() => setMobileOpen(false)} />
+                <NavGroup label="More" items={MORE} onGo={() => setMobileOpen(false)} />
+                <NavGroup
+                  label="Insights"
+                  items={[
+                    ["Analytics", "/analytics", BarChart3],
+                    ...INSIGHTS,
+                    ...(isAdmin ? [["Admin", "/admin", ShieldCheck]] : []),
+                    ["Settings", "/settings", SettingsIcon],
+                  ]}
+                  onGo={() => setMobileOpen(false)}
+                />
                 <button onClick={quit} className="navlink flex items-center gap-2.5 px-3 py-2.5 text-left" style={{ color: "var(--danger)" }}>
                   <LogOut size={15} aria-hidden="true" /> Logout ({user?.email})
                 </button>
