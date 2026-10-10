@@ -3,6 +3,8 @@ import { api } from "../api/client";
 
 const AuthContext = createContext(null);
 
+export const isAdmin = (user) => user?.role === "ADMIN";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
@@ -13,7 +15,7 @@ export function AuthProvider({ children }) {
   });
   const [ready, setReady] = useState(false);
 
-  // Re-validate a saved session on load.
+  // Re-validate a saved session on load (role included).
   useEffect(() => {
     const token = localStorage.getItem("pp_token");
     if (!token) {
@@ -34,20 +36,18 @@ export function AuthProvider({ children }) {
       .finally(() => setReady(true));
   }, []);
 
-  const save = (data) => {
+  const login = async (identifier, password) => {
+    const { data } = await api.post("/auth/login", { identifier, password });
     localStorage.setItem("pp_token", data.token);
     localStorage.setItem("pp_user", JSON.stringify(data.user));
     setUser(data.user);
+    return data.user;
   };
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
-    save(data);
-  };
-
-  const register = async (name, email, password) => {
-    const { data } = await api.post("/auth/register", { name, email, password });
-    save(data);
+  /** Registration never authenticates: returns the pending receipt. */
+  const register = async (payload) => {
+    const { data } = await api.post("/auth/register", payload);
+    return data;
   };
 
   const logout = () => {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, ready }}>
+    <AuthContext.Provider value={{ user, login, register, logout, ready, isAdmin: isAdmin(user) }}>
       {children}
     </AuthContext.Provider>
   );

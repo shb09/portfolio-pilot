@@ -7,7 +7,7 @@ import AuthLayout from "../components/AuthLayout";
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -17,8 +17,8 @@ export default function Login() {
     setBusy(true);
     setError("");
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const user = await login(identifier, password);
+      navigate(user?.role === "ADMIN" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(apiError(err, "Login failed"));
     } finally {
@@ -29,19 +29,19 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Log in to continue building your career story."
-      footer={<>New here? <Link to="/register" className="font-bold underline underline-offset-2" style={{ color: "var(--brand)" }}>Create an account</Link></>}
+      subtitle="Sign in with your username or email address."
+      footer={<>New here? <Link to="/register" className="font-bold underline underline-offset-2" style={{ color: "var(--ink)" }}>Create an account</Link></>}
     >
       <form onSubmit={submit} noValidate={false}>
         {error && (
-          <p role="alert" className="mb-3 rounded-md p-2.5 text-[13px] font-medium" style={{ background: "var(--chip)", color: "var(--danger)" }}>
+          <p role="alert" className="mb-3 rounded-md border-[1.5px] p-2.5 text-[13px] font-semibold" style={{ borderColor: "var(--danger)", background: "var(--chip)", color: "var(--danger)" }}>
             {error}
           </p>
         )}
-        <label className="label" htmlFor="email">Email</label>
+        <label className="label" htmlFor="identifier">Username or email</label>
         <input
-          id="email" className="input mt-1" type="email" required autoComplete="email"
-          value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu"
+          id="identifier" className="input mt-1" required autoComplete="username"
+          value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder="asha-01 or you@college.edu"
         />
         <label className="label mt-3.5 block" htmlFor="password">Password</label>
         <input
@@ -49,8 +49,11 @@ export default function Login() {
           value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
         />
         <button type="submit" disabled={busy} className="btn-brand mt-5 w-full justify-center py-2.5 text-sm">
-          {busy ? "Logging in…" : "Login"}
+          {busy ? "Signing in…" : "Login"}
         </button>
+        <p className="mt-3 text-center text-[13px]">
+          <Link to="/forgot" className="font-semibold underline underline-offset-2" style={{ color: "var(--muted)" }}>Forgot password?</Link>
+        </p>
       </form>
     </AuthLayout>
   );

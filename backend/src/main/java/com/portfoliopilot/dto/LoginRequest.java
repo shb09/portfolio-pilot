@@ -1,9 +1,9 @@
 package com.portfoliopilot.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+/** Single identifier: username OR email, resolved server-side. */
 public record LoginRequest(
-        @NotBlank(message = "email is required") @Email(message = "must be a valid email") String email,
+        @NotBlank(message = "username or email is required") String identifier,
         @NotBlank(message = "password is required") String password) {
 }

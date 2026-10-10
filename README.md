@@ -53,12 +53,15 @@ Framer Motion micro-interactions (reduced-motion aware).
 ```bash
 cd backend
 # point at your TiDB Cloud cluster (or export TIDB_URL / TIDB_USER / TIDB_PASSWORD)
+# JDK 21 required for tests (Mockito/ByteBuddy); export JAVA_HOME if needed
 mvn spring-boot:run
 curl http://localhost:8080/api/health   # {"status":"OK",...}
 ```
 
 > First boot auto-creates all 10 tables (`users, profiles, projects, skills, education,
 > experience, certifications, achievements, portfolios, analytics_events`).
+> Auth flow: register (pending) → verify email → login with username or email.
+> Full env-var table + production checklist: [`docs/deployment.md`](./docs/deployment.md).
 
 ### Frontend
 

@@ -13,9 +13,12 @@ export const MODULES = {
     fields: [
       { name: "title", label: "Title", required: true, placeholder: "Portfolio Pilot" },
       { name: "techStack", label: "Tech stack (comma-separated)", placeholder: "Java, Spring Boot, React" },
-      { name: "description", label: "Description", type: "textarea", placeholder: "What it does, your role, the outcome…" },
-      { name: "githubUrl", label: "GitHub URL", placeholder: "https://github.com/you/repo" },
+      { name: "description", label: "Short description", type: "textarea", required: true, placeholder: "What it does, your role, the outcome…" },
+      { name: "githubUrl", label: "GitHub repository URL", placeholder: "https://github.com/you/repo" },
       { name: "liveUrl", label: "Live demo URL", placeholder: "https://your-demo.app" },
+      { name: "imageUrl", label: "Cover image URL", placeholder: "https://…/cover.png" },
+      { name: "startDate", label: "Start (YYYY-MM)", placeholder: "2024-06" },
+      { name: "endDate", label: "Completed (YYYY-MM, blank if ongoing)", placeholder: "2024-12" },
       { name: "featured", label: "Featured — pin to “Selected work”", type: "checkbox", help: "Featured projects appear first on your public portfolio." },
     ],
     featuredFirst: true,
@@ -23,7 +26,7 @@ export const MODULES = {
     titleOf: (p) => p.title,
     subOf: (p) => p.techStack,
     descOf: (p) => p.description,
-    metaOf: () => "",
+    metaOf: (p) => [p.startDate, p.endDate || (p.startDate ? "Now" : null)].filter(Boolean).join(" → "),
     tagsOf: (p) => (p.techStack || "").split(",").map((t) => t.trim()).filter(Boolean).slice(0, 6),
     linksOf: (p) =>
       [

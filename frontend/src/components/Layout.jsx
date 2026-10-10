@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Award, BarChart3, Briefcase, ChevronDown, FolderKanban, GraduationCap,
   Layers, LayoutDashboard, LogOut, Menu, Moon, Rocket,
-  Settings as SettingsIcon, Sun, Trophy, UserRound, X,
+  Settings as SettingsIcon, ShieldCheck, Sun, Trophy, UserRound, X,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "../theme/ThemeContext";
@@ -57,13 +57,17 @@ function useDismiss(onClose) {
 }
 
 export default function Layout({ children }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { theme, toggle, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
+  const lastY = useRef(0);
+  const lastHidden = useRef(false);
+  const headerRef = useRef(null);
   const moreRef = useDismiss(() => setMoreOpen(false));
   const accountRef = useDismiss(() => setAccountOpen(false));
 
@@ -72,9 +76,43 @@ export default function Layout({ children }) {
     navigate("/login");
   };
 
-  const all = [...MAIN, ...MORE, ...INSIGHTS, ["Analytics", "/analytics", BarChart3], ["Settings", "/settings", SettingsIcon]];
+  const all = [...MAIN, ...MORE, ...INSIGHTS, ["Analytics", "/analytics", BarChart3], ["Settings", "/settings", SettingsIcon], ["Admin", "/admin", ShieldCheck]];
   const crumb = all.find(([, to]) => to === location.pathname)?.[0] || "Workspace";
   const moreActive = MORE.some(([, to]) => to === location.pathname);
+  const mobileLinks = [...MAIN, ...MORE, ["Analytics", "/analytics", BarChart3], ...INSIGHTS,
+    ...(isAdmin ? [["Admin", "/admin", ShieldCheck]] : []), ["Settings", "/settings", SettingsIcon]];
+
+  // Scroll behavior: hide on scroll down, reveal on scroll up. Never hides
+  // while menus are open, focus sits in the header, or reduced motion is on.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const y = window.scrollY;
+        const interacting = moreOpen || accountOpen || mobileOpen
+          || (headerRef.current && headerRef.current.contains(document.activeElement));
+        if (interacting || y <= 160) {
+          if (lastHidden.current) {
+            lastHidden.current = false;
+            setNavHidden(false);
+          }
+        } else {
+          const next = y > lastY.current + 4 ? true : y < lastY.current - 4 ? false : lastHidden.current;
+          if (next !== lastHidden.current) {
+            lastHidden.current = next;
+            setNavHidden(next);
+          }
+        }
+        lastY.current = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [moreOpen, accountOpen, mobileOpen]);
 
   const mainLink = ([name, to, Icon]) => (
     <NavLink
@@ -90,7 +128,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen">
       {/* Compact top navigation */}
-      <header className="sticky top-0 z-20 border-b-2" style={{ background: "var(--nav)", borderColor: "var(--line-strong)" }}>
+      <header ref={headerRef} className="sticky top-0 z-20 border-b-2" style={{ background: "var(--nav)", borderColor: "var(--line-strong)", transform: navHidden ? "translateY(-100%)" : "none", transition: "transform 0.22s ease" }}>
         <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3.5 py-2 sm:px-5">
           <Link to="/dashboard" className="mr-1 flex items-center gap-2">
             <BrandMark />
@@ -144,6 +182,14 @@ export default function Layout({ children }) {
             >
               <Rocket size={14} aria-hidden="true" /> Preview & Publish
             </NavLink>
+            {isAdmin && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => `navlink flex items-center gap-1.5 px-2.5 py-1.5${isActive ? " active" : ""}`}
+              >
+                <ShieldCheck size={14} aria-hidden="true" /> Admin
+              </NavLink>
+            )}
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={toggle} className="icon-btn" aria-label="Toggle theme" title="Toggle theme">
@@ -231,7 +277,7 @@ export default function Layout({ children }) {
               aria-label="Primary"
             >
               <div className="grid gap-0.5 px-3.5 py-3">
-                {[...MAIN, ...MORE, ["Analytics", "/analytics", BarChart3], ...INSIGHTS, ["Settings", "/settings", SettingsIcon]].map(([name, to, Icon]) => (
+                {mobileLinks.map(([name, to, Icon]) => (
                   <NavLink
                     key={to}
                     to={to}

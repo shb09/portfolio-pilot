@@ -73,6 +73,13 @@ public class ProjectService {
         project.setTechStack(request.techStack());
         project.setGithubUrl(request.githubUrl());
         project.setLiveUrl(request.liveUrl());
+        project.setImageUrl(request.imageUrl());
+        project.setStartDate(emptyToNull(request.startDate()));
+        project.setEndDate(emptyToNull(request.endDate()));
         project.setFeatured(request.featured() != null && request.featured());
+    }
+
+    private String emptyToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 }

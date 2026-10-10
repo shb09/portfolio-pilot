@@ -115,7 +115,13 @@ export default function PublicView({ data, onEvent }) {
                     {p.title}
                     {p.featured && <span className="chip-accent px-1.5 py-px text-[10px] font-extrabold uppercase tracking-wide">Featured</span>}
                   </h3>
-                  {p.techStack && <p className="mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.1em]" style={{ color: "var(--muted)" }}>{p.techStack}</p>}
+                  <p className="mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.1em]" style={{ color: "var(--muted)" }}>
+                    {[p.techStack, [p.startDate, p.endDate || (p.startDate ? "Now" : null)].filter(Boolean).join(" → ")].filter(Boolean).join(" · ")}
+                  </p>
+                  {p.imageUrl && (
+                    <img src={p.imageUrl} alt={`${p.title} preview`} loading="lazy"
+                      className="mt-3 max-h-56 w-full rounded-[4px] border-[1.5px] object-cover" style={{ borderColor: "var(--line-strong)" }} />
+                  )}
                   {p.description && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{p.description}</p>}
                 </div>
                 <div className="flex gap-3 text-[13px] font-extrabold sm:flex-col sm:items-end">

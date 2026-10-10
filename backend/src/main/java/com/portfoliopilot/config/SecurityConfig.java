@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,12 +20,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.nio.charset.StandardCharsets;
 
 /**
- * Stateless API security. JwtAuthFilter runs before the standard
- * auth filter; unauthenticated calls to protected endpoints get
- * a JSON 401 (not a redirect or blank 403). CORS picks up CorsConfig.
+ * Stateless API security. JwtAuthFilter authenticates per request;
+ * unauthenticated calls get JSON 401. Admin routes additionally require
+ * ROLE_ADMIN via @PreAuthorize on the controller (server-enforced —
+ * the frontend role is display-only). CORS picks up CorsConfig.
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;

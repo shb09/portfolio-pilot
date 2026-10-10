@@ -34,6 +34,7 @@ public class Project {
     @Column(nullable = false, length = 150)
     private String title;
 
+    /** Required by validation on write; nullable in DDL to protect legacy rows. */
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -46,6 +47,17 @@ public class Project {
 
     @Column(name = "live_url", length = 300)
     private String liveUrl;
+
+    /** Cover image URL (optional). */
+    @Column(name = "image_url", length = 300)
+    private String imageUrl;
+
+    /** YYYY-MM strings; null endDate = ongoing. */
+    @Column(name = "start_date", length = 7)
+    private String startDate;
+
+    @Column(name = "end_date", length = 7)
+    private String endDate;
 
     /** Pinned to the top of "Selected work" on the public portfolio. */
     @Column(nullable = false)
@@ -109,6 +121,30 @@ public class Project {
 
     public void setLiveUrl(String liveUrl) {
         this.liveUrl = liveUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
     public Boolean getFeatured() {

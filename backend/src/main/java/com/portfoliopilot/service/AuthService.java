@@ -2,21 +2,21 @@ package com.portfoliopilot.service;
 
 import com.portfoliopilot.dto.AuthResponse;
 import com.portfoliopilot.dto.LoginRequest;
-import com.portfoliopilot.dto.RegisterRequest;
 import com.portfoliopilot.dto.UserDto;
 import com.portfoliopilot.entity.User;
 import com.portfoliopilot.repository.UserRepository;
 import com.portfoliopilot.security.JwtService;
+import com.portfoliopilot.security.RateLimiter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Auth business rules: unique email, BCrypt hashing, credential checking.
- * Login failures always say "invalid email or password" (never reveal
- * which half was wrong — user-enumeration protection).
+ * Login by username OR email (one path, one behavior) + current-user lookup.
+ * Gates: existing account, correct password, verified email, enabled account.
+ * Failures stay generic except verification/disabled states, which need
+ * actionable messages (verified accounts only — no enumeration of unknowns).
  */
 @Service
 public class AuthService {
@@ -24,31 +24,38 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RateLimiter rateLimiter;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            JwtService jwtService, RateLimiter rateLimiter) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-    }
-
-    @Transactional
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
-        }
-        User user = new User();
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
-        User saved = userRepository.save(user);
-        return new AuthResponse(jwtService.generate(saved.getEmail()), UserDto.from(saved));
+        this.rateLimiter = rateLimiter;
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
-        return new AuthResponse(jwtService.generate(user.getEmail()), UserDto.from(user));
+        String identifier = request.identifier().trim().toLowerCase();
+        rateLimiter.check("login", identifier, 10, 300);
+        User user = resolve(identifier);
+        if (user == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+        if (!Boolean.TRUE.equals(user.getEnabled())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This account is disabled. Contact support.");
+        }
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Email not verified. Check your inbox for the verification link, or request a new one.");
+        }
+        return new AuthResponse(jwtService.generate(user.getEmail(), user.getRole()), UserDto.from(user));
+    }
+
+    /** Username first, then email — both stored lowercase. */
+    private User resolve(String identifier) {
+        return userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
+                .orElse(null);
     }
 
     public UserDto me(String email) {

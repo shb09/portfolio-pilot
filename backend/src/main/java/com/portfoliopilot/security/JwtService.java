@@ -1,5 +1,7 @@
 package com.portfoliopilot.security;
 
+import com.portfoliopilot.entity.Role;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,23 +35,37 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generate(String email) {
+    public String generate(String email, Role role) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role == null ? Role.USER.name() : role.name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(expirationMs)))
                 .signWith(key)
                 .compact();
     }
 
+    /** Legacy overload: subject-only tokens default to USER. */
+    public String generate(String email) {
+        return generate(email, Role.USER);
+    }
+
     /** Throws JwtException (expired, tampered, malformed) on any invalid token. */
     public String subject(String token) {
+        return claims(token).getSubject();
+    }
+
+    public String role(String token) {
+        Object role = claims(token).get("role");
+        return role == null ? Role.USER.name() : String.valueOf(role);
+    }
+
+    private Claims claims(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
     }
 }

@@ -90,7 +90,7 @@ export default function Preview() {
       <div className="mt-6">
         {data ? <PublicView data={data} onEvent={null} /> : <div className="skeleton h-96" aria-label="Loading preview" />}
       </div>
-      <Toast message={toast} />
+      <Toast message={toast} onDone={() => setToast("")} />
     </div>
   );
 }
