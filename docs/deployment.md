@@ -66,6 +66,33 @@ cd frontend && npm install && npm run dev
 Test accounts (local TiDB): `admin`/`qwerty@123456` (ADMIN, rotate before any public exposure),
 `student@test.com`/`password123` (USER). Register → verify (dev token in response) → login.
 
+## Admin password rotation (explicit local utility)
+
+`AdminPasswordResetRunner` resets **only** the existing ADMIN account's `password_hash`
+(BCrypt) and runs **only** when BOTH conditions hold — otherwise the boot is a no-op:
+
+1. program argument `--reset-admin-password` is passed, and
+2. env `APP_ADMIN_EMAIL` names the account + env `APP_ADMIN_NEW_PASSWORD` holds the new
+   password (10–100 chars).
+
+It refuses when the email is unset/unknown or the account is not ADMIN. Nothing is logged
+except the username. The normal bootstrap never overwrites an existing password.
+
+```bash
+cd backend
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home
+export APP_ADMIN_EMAIL='shb64178@gmail.com'
+export APP_ADMIN_NEW_PASSWORD='<new-strong-password>'   # 10+ chars, never commit
+mvn spring-boot:run -Dspring-boot.run.arguments="--reset-admin-password"
+# expect: "Admin password hash updated for username='admin'..."
+unset APP_ADMIN_NEW_PASSWORD
+```
+
+Verify afterwards: (1) login as `admin` with the new password → 200 + `"role":"ADMIN"`;
+(2) old password → 401; (3) `GET /api/auth/me` shows `"role":"ADMIN"`;
+(4) `GET /api/admin/stats` with the new token → 200; (5) an ordinary user's token
+on `/api/admin/*` → 403.
+
 ## Known limitations
 
 - No browser in this environment: pixel-level theme/layout checks need one real-browser pass.
