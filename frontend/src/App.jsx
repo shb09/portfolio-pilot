@@ -14,8 +14,6 @@ import Forgot from "./pages/Forgot";
 import Reset from "./pages/Reset";
 import OAuthCallback from "./pages/OAuthCallback";
 import ProfilePage from "./pages/ProfilePage";
-import Preview from "./pages/Preview";
-import AnalyticsPage from "./pages/AnalyticsPage";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
 import PublicPortfolio from "./pages/PublicPortfolio";
@@ -86,8 +84,8 @@ export default function App() {
       <Route path="/analysis" element={<Guard><AnalysisPage /></Guard>} />
       <Route path="/learn" element={<Guard><GlossaryPage /></Guard>} />
       <Route path="/walkthrough" element={<Guard><WalkthroughPage /></Guard>} />
-      <Route path="/preview" element={<Guard><Preview /></Guard>} />
-      <Route path="/analytics" element={<Guard><AnalyticsPage /></Guard>} />
+      <Route path="/preview" element={<Navigate to="/portfolios" replace />} />
+      <Route path="/analytics" element={<Navigate to="/analysis" replace />} />
       <Route path="/settings" element={<Guard><Settings /></Guard>} />
       <Route path="/portfolio/:username" element={<PublicPortfolio />} />
       <Route path="*" element={<Navigate to="/" replace />} />
