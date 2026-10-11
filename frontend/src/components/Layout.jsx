@@ -3,8 +3,8 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Award, BarChart3, Briefcase, ChevronDown, FolderKanban, GraduationCap,
-  Layers, LayoutDashboard, LogOut, Menu, Moon, Rocket,
-  Settings as SettingsIcon, ShieldCheck, Sun, Trophy, UserRound, X,
+  Layers, LayoutDashboard, LineChart, LogOut, Menu, Moon, PieChart, Rocket,
+  Settings as SettingsIcon, ShieldCheck, Sun, TrendingUp, Trophy, UserRound, X,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "../theme/ThemeContext";
@@ -21,6 +21,9 @@ const MORE = [
   ["Education", "/education", GraduationCap],
   ["Certifications", "/certifications", Award],
   ["Achievements", "/achievements", Trophy],
+  ["Portfolios", "/portfolios", PieChart],
+  ["Prices", "/prices", LineChart],
+  ["Analysis", "/analysis", TrendingUp],
 ];
 
 const INSIGHTS = [["Preview & Publish", "/preview", Rocket]];
@@ -361,7 +364,7 @@ export default function Layout({ children }) {
         {children}
       </main>
       <footer className="mx-auto max-w-6xl px-5 pb-8 text-[11px]" style={{ color: "var(--muted)" }}>
-        PORTFOLIO PILOT — build your profile, track your progress, launch your career story.
+        PORTFOLIO PILOT — measure risk, track return, stay diversified.
       </footer>
     </div>
   );
